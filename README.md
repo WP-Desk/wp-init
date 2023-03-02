@@ -41,7 +41,13 @@ most of the time you will need a few more steps to make the most of plugin initi
 #### Using dependency injection container
 
 Paired with `php-di/php-di`, you are able to take leverage of dependency injection in your 
-WordPress plugin.
+WordPress plugin. `wp-init` is ready to pick up all of your hook provider classes from special 
+container entry named `hooks`. Any class registered in this array will be called during 
+`plugins_loaded` hook.
+
+```shell
+composer require php-di/php-di
+```
 
 ```php
 <?php
@@ -54,7 +60,11 @@ use WPDesk\Init\PluginInit;
 require __DIR__ . '/vendor/autoload.php';
 
 $plugin = (new PluginInit())
-    ->add_container_definitions(__DIR__ . '/config/services.inc.php')
+    ->add_container_definitions([
+        'hooks' => [
+            \DI\autowire( \Example\PostType\BookPostType::class )
+        ]
+    ])
     ->init();
 ```
 

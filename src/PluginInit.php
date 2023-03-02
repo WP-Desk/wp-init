@@ -24,6 +24,14 @@ final class PluginInit {
 	/** @var string|null Plugin identifier. */
 	private $slug;
 
+	/**
+	 * Define environment constraints required by a plugin. If requirements are not fulfilled,
+	 * the plugin will not be able to instantiate.
+	 *
+	 * Validation rules are defined according to `wp-basic-requirements` documentation.
+	 *
+	 * @see https://gitlab.wpdesk.dev/wpdesk/wp-basic-requirements
+	 */
 	public function set_requirements( array $requirements ): self {
 		$this->requirements = $requirements;
 
