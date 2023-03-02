@@ -28,7 +28,8 @@ final class PluginInit {
 	 * Define environment constraints required by a plugin. If requirements are not fulfilled,
 	 * the plugin will not be able to instantiate.
 	 *
-	 * Validation rules are defined according to `wp-basic-requirements` documentation.
+	 * @param array $requirements Validation rules are defined according to `wp-basic-requirements`
+	 * documentation.
 	 *
 	 * @see https://gitlab.wpdesk.dev/wpdesk/wp-basic-requirements
 	 */
