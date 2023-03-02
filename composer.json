@@ -1,0 +1,48 @@
+{
+  "name": "wpdesk/wp-init",
+  "description": "Bootstrap for a WordPress plugin",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Bartek Jaskulski",
+      "email": "bjaskulski@protonmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "WPDesk\\Init\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WPDesk\\Init\\Tests\\": "tests"
+    },
+    "classmap": [
+      "vendor/wpdesk/wp-basic-requirements"
+    ]
+  },
+  "require": {
+    "php": ">=7.2 | ^8",
+    "psr/container": "^1 || ^2"
+  },
+  "require-dev": {
+    "wpdesk/wp-basic-requirements": "^3",
+    "php-di/php-di": "^6 || ^7",
+    "phpunit/phpunit": "^8 || ^9",
+    "symfony/filesystem": "^6.2",
+    "brain/monkey": "^2.6"
+  },
+  "suggest": {
+    "wpdesk/wp-basic-requirements": "Enables your plugin to check an environment requirement before instantiation, e.g. PHP version or active plugins",
+    "php-di/php-di": "Allows a plugin to seamlessly integrate with a dependency injection container"
+  },
+  "conflict": {
+    "wpdesk/wp-basic-requirements": "<3, >=4",
+    "php-di/php-di": "<6, >=8"
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit --bootstrap tests/bootstrap.php ./tests"
+  }
+}
