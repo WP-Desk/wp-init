@@ -4,10 +4,19 @@
   "minimum-stability": "stable",
   "license": "MIT",
   "type": "library",
+  "homepage": "https://gitlab.wpdesk.dev/wpdesk/wp-init",
+  "keywords": [
+    "wordpress"
+  ],
   "authors": [
     {
+      "name": "WPDesk",
+      "homepage": "https://wpdesk.net"
+    },
+    {
       "name": "Bartek Jaskulski",
-      "email": "bjaskulski@protonmail.com"
+      "email": "bjaskulski@protonmail.com",
+      "role": "Developer"
     }
   ],
   "autoload": {

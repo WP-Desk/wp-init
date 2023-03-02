@@ -204,6 +204,16 @@ Classes that extend `AbstractHookProvider` are automatically "plugin aware."
 This package is heavily inspired by Cedaro's [`wp-plugin`](https://github.com/cedaro/wp-plugin/) 
 and Alain Schlesser's [`basic-scaffold`](https://github.com/mwpd/basic-scaffold).
 
+## Roadmap
+
+1. Add support for path based hook providers discovery similar to Symfony's [controllers resolving](https://github.com/symfony/demo/blob/3787b9f71f6bee24f1ed0718b9a808d824008776/config/routes.yaml#L15-L17)
+1. Improve `wpdesk/wp-basic-requirements` library. This is not related directly to this project, 
+   but internals could be rewritten.
+1. Scrap plugin data from plugin comment
+1. Allow hooks to be called from private and protected methods (in PHP <8.1)
+1. Support *bundles* of hook providers. This should be easy to extend plugin capabilities with 
+   shared functions, preserving minimal init system
+
 ## License
 
 Copyright (c) 2023 WPDesk
