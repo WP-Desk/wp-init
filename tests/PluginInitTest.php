@@ -49,7 +49,7 @@ class PluginInitTest extends TestCase {
 		$plugin = $this->load_plugin_file( $dir, $slug );
 
 		$this->assertNotNull($plugin);
-		$this->assertFileExists( $dir . '/cache' );
+		$this->assertFileExists( $dir . '/generated/container/advanced_plugin_container.php' );
 	}
 
 	private function load_plugin_file( $dir, $slug ): ?Plugin {

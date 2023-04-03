@@ -3,8 +3,11 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init;
 
-final class Plugin implements ContainerAwareInterface {
-	use ContainerAwareTrait;
+use WPDesk\Init\HookProvider\Deferred;
+use WPDesk\Init\HookProvider\HooksProvider;
+use WPDesk\Init\HookProvider\Conditional;
+
+final class Plugin {
 
 	/**
 	 * Plugin basename.
@@ -13,14 +16,14 @@ final class Plugin implements ContainerAwareInterface {
 	 *
 	 * @var string
 	 */
-	protected $basename;
+	private $basename;
 
 	/**
 	 * Absolute path to the main plugin directory.
 	 *
 	 * @var string
 	 */
-	protected $directory;
+	private $directory;
 
 	/**
 	 * Plugin name to display.
@@ -34,72 +37,71 @@ final class Plugin implements ContainerAwareInterface {
 	 *
 	 * @var string
 	 */
-	protected $file;
+	private $file;
 
 	/**
 	 * Plugin identifier.
 	 *
 	 * @var string
 	 */
-	protected $slug;
+	private $slug;
 
 	/**
 	 * URL to the main plugin directory.
 	 *
 	 * @var string
 	 */
-	protected $url;
+	private $url;
+
+	/**
+	 * Plugin version string.
+	 *
+	 * @var string
+	 */
+	private $version;
+
+	/**
+	 * Current plugin execution environment.
+	 *
+	 * @var string
+	 */
+	private $environment;
+
+	public function __construct(
+		string $file,
+		string $name,
+		string $version,
+		?string $slug = null,
+		string $environment = 'prod'
+	) {
+		$this->file        = $file;
+		$this->name        = $name;
+		$this->version     = $version;
+		$this->environment = $environment;
+		$this->basename    = plugin_basename( $file );
+		$this->directory   = rtrim( plugin_dir_path( $file ), '/' ) . '/';
+		$this->url         = rtrim( plugin_dir_url( $file ), '/' ) . '/';
+		$this->slug        = $slug ?? basename( $this->directory );
+	}
 
 	/**
 	 * Retrieve the absolute path for the main plugin file.
-	 *
-	 * @return string
 	 */
 	public function get_basename(): string {
 		return $this->basename;
 	}
 
 	/**
-	 * Set the plugin basename.
-	 *
-	 * @param string $basename Relative path from the main plugin directory.
-	 *
-	 * @return $this
-	 */
-	public function set_basename( string $basename ): self {
-		$this->basename = $basename;
-
-		return $this;
-	}
-
-	/**
 	 * Retrieve the plugin directory.
-	 *
-	 * @return string
 	 */
 	public function get_directory(): string {
 		return $this->directory;
 	}
 
 	/**
-	 * Set the plugin's directory.
-	 *
-	 * @param string $directory Absolute path to the main plugin directory.
-	 *
-	 * @return $this
-	 */
-	public function set_directory( string $directory ): self {
-		$this->directory = rtrim( $directory, '/' ) . '/';
-
-		return $this;
-	}
-
-	/**
 	 * Retrieve the path to a file in the plugin.
 	 *
 	 * @param string $path Optional. Path relative to the plugin root.
-	 *
-	 * @return string
 	 */
 	public function get_path( string $path = '' ): string {
 		return $this->directory . ltrim( $path, '/' );
@@ -107,112 +109,63 @@ final class Plugin implements ContainerAwareInterface {
 
 	/**
 	 * Retrieve the absolute path for the main plugin file.
-	 *
-	 * @return string
 	 */
 	public function get_file(): string {
 		return $this->file;
 	}
 
-	/**
-	 * Set the path to the main plugin file.
-	 *
-	 * @param string $file Absolute path to the main plugin file.
-	 *
-	 * @return $this
-	 */
-	public function set_file( string $file ): self {
-		$this->file = $file;
-
-		return $this;
-	}
-
-	/**
-	 * @param string $name
-	 *
-	 * @return self
-	 */
-	public function set_name( string $name ): self {
-		$this->name = $name;
-
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function get_name(): string {
 		return $this->name ?? $this->get_slug();
 	}
 
 	/**
 	 * Retrieve the plugin identifier.
-	 *
-	 * @return string
 	 */
 	public function get_slug(): string {
 		return $this->slug;
 	}
 
 	/**
-	 * Set the plugin identifier.
-	 *
-	 * @param string $slug Plugin identifier.
-	 *
-	 * @return $this
-	 */
-	public function set_slug( string $slug ) {
-		$this->slug = $slug;
-
-		return $this;
-	}
-
-	/**
 	 * Retrieve the URL for a file in the plugin.
 	 *
 	 * @param string $path Optional. Path relative to the plugin root.
-	 *
-	 * @return string
 	 */
 	public function get_url( string $path = '' ) {
 		return $this->url . ltrim( $path, '/' );
 	}
 
-	/**
-	 * Set the URL for plugin directory root.
-	 *
-	 * @param string $url URL to the root of the plugin directory.
-	 *
-	 * @return $this
-	 */
-	public function set_url( string $url ) {
-		$this->url = rtrim( $url, '/' ) . '/';
+	public function get_environment(): string {
+		return $this->environment;
+	}
 
-		return $this;
+	public function is_environment( string $env ): bool {
+		return $this->environment === $env;
+	}
+
+	public function get_version(): string {
+		return $this->version;
 	}
 
 	/**
 	 * Register hooks for the plugin.
-	 *
-	 * @param HooksProvider ...$providers
-	 *
-	 * @return void
 	 */
 	public function register_hooks( HooksProvider ...$providers ): void {
 		foreach ( $providers as $provider ) {
-			if ( $provider instanceof PluginAwareInterface ) {
-				$provider->set_plugin( $this );
-			}
-
-			if ( $provider instanceof ContainerAwareInterface ) {
-				$provider->set_container( $this->container );
-			}
-
 			if ( $provider instanceof Conditional && ! $provider->is_needed() ) {
 				continue;
 			}
 
-			$provider->register_hooks();
+			if ( $provider instanceof Deferred ) {
+				$register_after    = array_values( (array) $provider->register_after() );
+				$register_after[1] = $register_after[1] ?? 10;
+				[ $hook, $priority ] = $register_after;
+				add_action( $hook, static function () use ( $provider ) {
+					$provider->register_hooks();
+				}, $priority, 0 );
+
+			} else {
+				$provider->register_hooks();
+			}
 		}
 	}
 

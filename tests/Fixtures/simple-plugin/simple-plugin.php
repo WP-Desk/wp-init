@@ -1,3 +1,6 @@
 <?php
+/**
+ * Plugin Name: Example plugin
+ */
 
-$plugin = ( new \WPDesk\Init\PluginInit() )->init();
+$plugin = \WPDesk\Init\PluginInit::from_config( 'config.php' )->init();

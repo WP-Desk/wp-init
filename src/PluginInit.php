@@ -4,49 +4,48 @@ declare( strict_types=1 );
 namespace WPDesk\Init;
 
 use DI\ContainerBuilder;
-use DI\Definition\Source\DefinitionSource;
-use Psr\Container\ContainerInterface;
+use InvalidArgumentException;
+use WPDesk\Init\Configuration\Configuration;
+use WPDesk\WPHook\ContainerSubscriberResolver;
+use WPDesk\WPHook\HookListenerProvider;
+use WPDesk\WPHook\HookSubscriber\HookSubscriber;
 
 /**
  * Plugin builder class responsible for our initialization system.
  */
 final class PluginInit {
+	private const ENV_PRODUCTION = 'prod';
+	private const ENV_DEVELOPMENT = 'dev';
 
-	/** @var array */
-	private $requirements = [];
-
-	/** @var array Dependency injection container definitions */
-	private $definitions = [];
+	private $bundles = [];
 
 	/** @var string|null Plugin filename. */
 	private $filename;
 
-	/** @var string|null Plugin identifier. */
-	private $slug;
+	/** @var Configuration */
+	private $config;
 
-	/**
-	 * Define environment constraints required by a plugin. If requirements are not fulfilled,
-	 * the plugin will not be able to instantiate.
-	 *
-	 * @param array $requirements Validation rules are defined according to `wp-basic-requirements`
-	 * documentation.
-	 *
-	 * @see https://gitlab.wpdesk.dev/wpdesk/wp-basic-requirements
-	 */
-	public function set_requirements( array $requirements ): self {
-		$this->requirements = $requirements;
+	/** @var string */
+	private $env;
 
-		return $this;
+	/** @var class-string<HookSubscriber>[] */
+	private $subscribers;
+
+	public static function from_config(
+		string $config_path,
+		string $environment = null
+	): self {
+		$config = require $config_path;
+
+		return new self( new Configuration( $config ), $environment ?? '' );
 	}
 
-	/**
-	 * Define plugin slug. This value will be used as main plugin identifier and as translation
-	 * text domain. By default, plugin slug is set to plugin directory name.
-	 */
-	public function set_slug( string $slug ): self {
-		$this->slug = $slug;
-
-		return $this;
+	public function __construct(
+		Configuration $config,
+		string $environment = self::ENV_PRODUCTION
+	) {
+		$this->config = $config;
+		$this->env    = $environment;
 	}
 
 	/**
@@ -62,20 +61,6 @@ final class PluginInit {
 	}
 
 	/**
-	 * Add definition sources to use in dependency injection container.
-	 * If plugin doesn't receive any definitions, then container build is skipped.
-	 *
-	 * @see https://php-di.org/doc/container-configuration.html
-	 *
-	 * @param array|DefinitionSource|string $definitions
-	 */
-	public function add_container_definitions( ...$definitions ): self {
-		$this->definitions = array_merge( $this->definitions, $definitions );
-
-		return $this;
-	}
-
-	/**
 	 * Build and return a plugin.
 	 *
 	 * @return Plugin|null If plugin failed to build (e.g. requirements are not fulfilled),
@@ -85,66 +70,93 @@ final class PluginInit {
 	 */
 	public function init(): ?Plugin {
 		if ( empty( $this->filename ) ) {
-			$backtrace      = debug_backtrace( DEBUG_BACKTRACE_PROVIDE_OBJECT, 1 );
+			$backtrace      = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 1 );
 			$this->filename = $backtrace[0]['file'];
 		}
 
-		$plugin = $this->create_plugin();
+		$data        = new PluginHeaderParser();
+		$plugin_data = $data->get_plugin_data( $this->filename );
 
-		if (
-			! empty( $this->requirements ) &&
-			class_exists( \WPDesk_Basic_Requirement_Checker_Factory::class ) &&
-			! $this->requirements_met( $plugin )
-		) {
+//		$this->createCompilationDirectory(dirname($this->config['cache_path']));
+//		$this->writeFileAtomic(
+//			dirname($this->filename).'/'.$this->config['cache_path'].'/plugin.php',
+//			'<?php return ' . var_export($plugin_data)
+//		);
+
+		$plugin = $this->create_plugin( $plugin_data );
+
+		if ( ! isset( $this->config['require']['wp'] ) ) {
+			$this->config['require']['wp'] = $plugin_data['RequiresWP'];
+		}
+
+		if ( ! isset( $this->config['require']['php'] ) ) {
+			$this->config['require']['php'] = $plugin_data['RequiresPHP'];
+		}
+
+		if ( ! $this->requirements_met( $plugin ) ) {
 			return null;
 		}
 
-		if ( ! empty( $this->definitions ) && class_exists( ContainerBuilder::class ) ) {
-			$plugin->set_container( $this->build_container( $plugin ) );
+		foreach ( $this->config['bundles'] ?? [] as $bundle ) {
+			$this->bundles[ $bundle ] = new $bundle();
 		}
 
-		return $this->register_default_providers( $plugin );
+		$this->subscribers = $this->config->get( 'hook_subscribers', [] );
+
+		foreach ( $this->bundles as $bundle ) {
+			$this->subscribers = array_merge( $this->subscribers, $bundle->get_subscribers() );
+		}
+
+		$builder = $this->build_container( $plugin );
+
+		foreach ( $this->bundles as $bundle ) {
+			$bundle->build( $builder, $this->config );
+		}
+
+		$container = $builder->build();
+
+		$container->set( Plugin::class, $plugin );
+
+		$provider = new HookListenerProvider( new ContainerSubscriberResolver( $container ) );
+
+		foreach ( $this->subscribers as $subscriber ) {
+			$provider->subscribe( $subscriber );
+		}
+
+		return $plugin;
 	}
 
-	private function build_container( Plugin $plugin ): ContainerInterface {
+	private function build_container( Plugin $plugin ): ContainerBuilder {
 		$builder = new ContainerBuilder();
 
-		if ( ! getenv( 'WPDESK_DEVELOPMENT' ) ) {
+		if ( $plugin->is_environment( self::ENV_PRODUCTION ) ) {
 			$builder->enableCompilation(
-				$plugin->get_path( '/cache' ),
+				$plugin->get_path( $this->config['cache_path'] . '/container' ),
 				str_replace( '-', '_', $plugin->get_slug() ) . '_container'
 			);
 		}
 
-		$builder->addDefinitions( ...$this->definitions );
+		$builder->addDefinitions(
+			[
+				\wpdb::class => static function () {
+					global $wpdb;
 
-		return $builder->build();
-	}
-
-	private function register_default_providers( Plugin $plugin ): Plugin {
-		$plugin->register_hooks(
-			new HookProvider\I18n(),
-			new HookProvider\WooCommerceHPOSCompatibility(),
-			new HookProvider\ActivationDate()
+					return $wpdb;
+				}
+			]
 		);
 
-		if ( ! empty( $this->definitions ) ) {
-			$plugin->register_hooks( new HookProvider\ContainerHookProvider() );
-		}
-
-		return $plugin;
+		return $builder;
 	}
 
-
-	private function create_plugin(): Plugin {
-		$plugin = new Plugin();
-		$plugin->set_file( $this->filename )
-		       ->set_basename( plugin_basename( $this->filename ) )
-		       ->set_directory( plugin_dir_path( $this->filename ) )
-		       ->set_url( plugin_dir_url( $this->filename ) )
-		       ->set_slug( $this->slug ?? basename( $plugin->get_directory() ) );
-
-		return $plugin;
+	private function create_plugin( array $plugin_data ): Plugin {
+		return new Plugin(
+			$this->filename,
+			$plugin_data['Name'],
+			$plugin_data['Version'],
+			$plugin_data['TextDomain'],
+			$this->env
+		);
 	}
 
 	/**
@@ -157,7 +169,7 @@ final class PluginInit {
 		$requirements         = $requirements_factory->create_from_requirement_array(
 			$plugin->get_basename(),
 			$plugin->get_name(),
-			$this->requirements,
+			$this->config['require'],
 			$plugin->get_slug()
 		);
 
@@ -168,6 +180,39 @@ final class PluginInit {
 		}
 
 		return true;
+	}
+
+	private function createCompilationDirectory( string $directory ): void {
+		if ( ! is_dir( $directory ) && ! @mkdir( $directory, 0777, true ) && ! is_dir( $directory ) ) {
+			throw new InvalidArgumentException( sprintf( 'Compilation directory does not exist and cannot be created: %s.', $directory ) );
+		}
+		if ( ! is_writable( $directory ) ) {
+			throw new InvalidArgumentException( sprintf( 'Compilation directory is not writable: %s.', $directory ) );
+		}
+	}
+
+	private function writeFileAtomic( string $fileName, string $content ): void {
+		$tmpFile = @tempnam( dirname( $fileName ), 'swap-compile' );
+		if ( $tmpFile === false ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Error while creating temporary file in %s', dirname( $fileName ) )
+			);
+		}
+		@chmod( $tmpFile, 0666 );
+
+		$written = file_put_contents( $tmpFile, $content );
+		if ( $written === false ) {
+			@unlink( $tmpFile );
+
+			throw new InvalidArgumentException( sprintf( 'Error while writing to %s', $tmpFile ) );
+		}
+
+		@chmod( $tmpFile, 0666 );
+		$renamed = @rename( $tmpFile, $fileName );
+		if ( ! $renamed ) {
+			@unlink( $tmpFile );
+			throw new InvalidArgumentException( sprintf( 'Error while renaming %s to %s', $tmpFile, $fileName ) );
+		}
 	}
 
 }
