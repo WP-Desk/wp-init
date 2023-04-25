@@ -3,7 +3,7 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init;
 
-class PluginHeaderParser {
+class PluginHeaderParser implements HeaderParser {
 
 	private const KB_IN_BYTES = 1024;
 	private const HEADERS = [
@@ -73,12 +73,12 @@ class PluginHeaderParser {
 	 *     UpdateURI?: string,
 	 * }
 	 */
-	public function get_plugin_data( string $plugin_file ): array {
+	public function parse( string $plugin_file ): array {
 
 		$plugin_data = $this->get_file_data( $plugin_file, self::HEADERS );
 
 		if ( isset( $plugin_data['Network'] ) ) {
-			$plugin_data['Network'] = filter_var( $plugin_data['Network'], \FILTER_VALIDATE_BOOL );
+			$plugin_data['Network'] = filter_var( $plugin_data['Network'], \FILTER_VALIDATE_BOOLEAN );
 		}
 
 		// If no text domain is defined fall back to the plugin slug.

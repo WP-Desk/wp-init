@@ -11,7 +11,7 @@ class PluginHeaderParserTest extends TestCase {
 		$data = new PluginHeaderParser();
 		$dir  = $this->initTempPlugin();
 
-		$result = $data->get_plugin_data( $dir . '/simple-plugin.php' );
+		$result = $data->parse( $dir . '/simple-plugin.php' );
 
 		$this->assertEquals( [ 'Name' => 'Example plugin' ], $result );
 	}
@@ -20,7 +20,7 @@ class PluginHeaderParserTest extends TestCase {
 		$data = new PluginHeaderParser();
 		$dir  = $this->initTempPlugin( 'advanced-plugin' );
 
-		$result = $data->get_plugin_data( $dir . '/advanced-plugin.php' );
+		$result = $data->parse( $dir . '/advanced-plugin.php' );
 
 		$this->assertEquals(
 			[

@@ -25,6 +25,9 @@ class PluginInitTest extends TestCase {
 			'plugin_basename',
 			'plugin_dir_url'
 		]);
+		Monkey\Functions\expect('get_bloginfo')
+			->with('version')
+			->andReturn('5.6');
 
 		$slug   = 'simple-plugin';
 		$dir    = $this->initTempPlugin( $slug );

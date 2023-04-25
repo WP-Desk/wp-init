@@ -3,10 +3,6 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init;
 
-use WPDesk\Init\HookProvider\Deferred;
-use WPDesk\Init\HookProvider\HooksProvider;
-use WPDesk\Init\HookProvider\Conditional;
-
 final class Plugin {
 
 	/**
@@ -115,7 +111,7 @@ final class Plugin {
 	}
 
 	public function get_name(): string {
-		return $this->name ?? $this->get_slug();
+		return $this->name;
 	}
 
 	/**
@@ -130,7 +126,7 @@ final class Plugin {
 	 *
 	 * @param string $path Optional. Path relative to the plugin root.
 	 */
-	public function get_url( string $path = '' ) {
+	public function get_url( string $path = '' ): string {
 		return $this->url . ltrim( $path, '/' );
 	}
 
@@ -144,29 +140,6 @@ final class Plugin {
 
 	public function get_version(): string {
 		return $this->version;
-	}
-
-	/**
-	 * Register hooks for the plugin.
-	 */
-	public function register_hooks( HooksProvider ...$providers ): void {
-		foreach ( $providers as $provider ) {
-			if ( $provider instanceof Conditional && ! $provider->is_needed() ) {
-				continue;
-			}
-
-			if ( $provider instanceof Deferred ) {
-				$register_after    = array_values( (array) $provider->register_after() );
-				$register_after[1] = $register_after[1] ?? 10;
-				[ $hook, $priority ] = $register_after;
-				add_action( $hook, static function () use ( $provider ) {
-					$provider->register_hooks();
-				}, $priority, 0 );
-
-			} else {
-				$provider->register_hooks();
-			}
-		}
 	}
 
 }

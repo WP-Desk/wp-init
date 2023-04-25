@@ -6,7 +6,9 @@
   "type": "library",
   "homepage": "https://gitlab.wpdesk.dev/wpdesk/wp-init",
   "keywords": [
-    "wordpress"
+    "wordpress",
+    "plugin",
+    "bootstrap"
   ],
   "authors": [
     {

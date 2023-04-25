@@ -3,6 +3,9 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Configuration;
 
+/**
+ * @implements \ArrayAccess<string, mixed>
+ */
 class Configuration implements ReadableConfig, \ArrayAccess {
 
 	/** @var array<string, mixed> */
@@ -34,7 +37,7 @@ class Configuration implements ReadableConfig, \ArrayAccess {
 		unset( $this->config[ $key ] );
 	}
 
-	public function offsetExists( $offset ) {
+	public function offsetExists( $offset ): bool {
 		return $this->has( $offset );
 	}
 
@@ -44,6 +47,10 @@ class Configuration implements ReadableConfig, \ArrayAccess {
 	}
 
 	public function offsetSet( $offset, $value ): void {
+		if ( $offset === null ) {
+			throw new \InvalidArgumentException( 'Cannot set value without key.' );
+		}
+
 		$this->set( $offset, $value );
 	}
 
