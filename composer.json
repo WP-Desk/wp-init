@@ -21,6 +21,9 @@
       "role": "Developer"
     }
   ],
+  "bin": [
+    "bin/wpinit"
+  ],
   "autoload": {
     "psr-4": {
       "WPDesk\\Init\\": "src"
