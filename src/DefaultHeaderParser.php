@@ -3,7 +3,7 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init;
 
-class PluginHeaderParser implements HeaderParser {
+class DefaultHeaderParser implements HeaderParser {
 
 	private const KB_IN_BYTES = 1024;
 	private const HEADERS = [
@@ -118,7 +118,7 @@ class PluginHeaderParser implements HeaderParser {
 		}
 
 		// Make sure we catch CR-only line endings.
-		$file_data = str_replace( "\r", "\n", $file_data );
+		$file_data = \str_replace( "\r", "\n", $file_data );
 
 		$headers = [];
 		foreach ( $default_headers as $field => $regex ) {

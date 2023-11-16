@@ -3,12 +3,12 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests;
 
-use WPDesk\Init\PluginHeaderParser;
+use WPDesk\Init\DefaultHeaderParser;
 
-class PluginHeaderParserTest extends TestCase {
+class DefaultHeaderParserTest extends TestCase {
 
 	public function test_should_parse_plugin_data(): void {
-		$data = new PluginHeaderParser();
+		$data = new DefaultHeaderParser();
 		$dir  = $this->initTempPlugin();
 
 		$result = $data->parse( $dir . '/simple-plugin.php' );
@@ -17,7 +17,7 @@ class PluginHeaderParserTest extends TestCase {
 	}
 
 	public function test_should_parse_whole_plugin_data(): void {
-		$data = new PluginHeaderParser();
+		$data = new DefaultHeaderParser();
 		$dir  = $this->initTempPlugin( 'advanced-plugin' );
 
 		$result = $data->parse( $dir . '/advanced-plugin.php' );

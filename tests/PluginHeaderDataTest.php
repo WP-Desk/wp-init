@@ -7,7 +7,7 @@ use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Dumper\PhpFileDumper;
 use WPDesk\Init\Loader\PhpFileLoader;
 use WPDesk\Init\PluginHeaderData;
-use WPDesk\Init\PluginHeaderParser;
+use WPDesk\Init\DefaultHeaderParser;
 
 class PluginHeaderDataTest extends TestCase {
 
@@ -15,7 +15,7 @@ class PluginHeaderDataTest extends TestCase {
 		$dir = $this->initTempPlugin();
 
 		$header = new PluginHeaderData(
-			new PluginHeaderParser(),
+			new DefaultHeaderParser(),
 			new PhpFileLoader(),
 			new PhpFileDumper(),
 			new Configuration( [] )
