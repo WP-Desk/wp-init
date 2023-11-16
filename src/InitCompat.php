@@ -7,10 +7,10 @@ namespace WPDesk\Init;
 
 class InitCompat {
 
-	public static function from_config( $config_path, $environment = null ) {
+	public static function from_config( $config_path ) {
 		require __DIR__ . '/platform_check.php';
 
-		$init = new PluginInit( $config_path, $environment );
+		$init = new PluginInit( $config_path );
 
 		return $init->init();
 	}

@@ -56,24 +56,15 @@ final class Plugin {
 	 */
 	private $version;
 
-	/**
-	 * Current plugin execution environment.
-	 *
-	 * @var string
-	 */
-	private $environment;
-
 	public function __construct(
 		string $file,
 		string $name,
 		string $version,
 		?string $slug = null,
-		string $environment = 'prod'
 	) {
 		$this->file        = $file;
 		$this->name        = $name;
 		$this->version     = $version;
-		$this->environment = $environment;
 		$this->basename    = plugin_basename( $file );
 		$this->directory   = rtrim( plugin_dir_path( $file ), '/' ) . '/';
 		$this->url         = rtrim( plugin_dir_url( $file ), '/' ) . '/';
@@ -128,14 +119,6 @@ final class Plugin {
 	 */
 	public function get_url( string $path = '' ): string {
 		return $this->url . ltrim( $path, '/' );
-	}
-
-	public function get_environment(): string {
-		return $this->environment;
-	}
-
-	public function is_environment( string $env ): bool {
-		return $this->environment === $env;
 	}
 
 	public function get_version(): string {
