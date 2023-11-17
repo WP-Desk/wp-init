@@ -5,6 +5,7 @@ namespace WPDesk\Init\HookDriver;
 
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Configuration\ReadableConfig;
+use WPDesk\Init\HookDriver\Legacy\HooksRegistry;
 use WPDesk\Init\Plugin;
 
 class LegacyHookableDriver implements HookDriver {
@@ -15,6 +16,8 @@ class LegacyHookableDriver implements HookDriver {
 		$class_name = $info->get_class_name();
 
 		$p = new $class_name($info);
+		$reg = HooksRegistry::instance();
+		$reg->inject_container($container);
 		add_action('plugins_loaded', [$p, 'init'], -45);
 	}
 
