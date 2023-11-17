@@ -45,7 +45,10 @@
     "wpdesk/wp-basic-requirements": "^3",
     "phpunit/phpunit": "^8 || ^9",
     "symfony/filesystem": "^6.2",
-    "brain/monkey": "^2.6"
+    "brain/monkey": "^2.6",
+    "phpstan/phpstan": "^1.10",
+    "szepeviktor/phpstan-wordpress": "^1.3",
+    "phpstan/extension-installer": "^1.3"
   },
   "suggest": {
     "wpdesk/wp-basic-requirements": "Enables your plugin to check an environment requirement before instantiation, e.g. PHP version or active plugins"
@@ -55,5 +58,10 @@
   },
   "scripts": {
     "test": "vendor/bin/phpunit --bootstrap tests/bootstrap.php ./tests"
+  },
+  "config": {
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
   }
 }
