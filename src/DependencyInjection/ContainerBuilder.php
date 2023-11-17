@@ -26,7 +26,7 @@ final class ContainerBuilder {
 	 * @return $this
 	 */
 	public function add_definitions( ...$definitions ): self {
-		$this->original_builder->addDefinitions( $definitions );
+		$this->original_builder->addDefinitions( ...$definitions );
 
 		return $this;
 	}
