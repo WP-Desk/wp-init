@@ -13,7 +13,12 @@ class PhpFileLoader {
 	public function load( string $resource ) {
 		// TODO: add file locator
 		return ( static function () use ( $resource ) {
-			return include $resource;
+			$data = include $resource;
+			if ( $data === false ) {
+				throw new \RuntimeException( "Could not load $resource" );
+			}
+
+			return $data;
 		} )();
 	}
 
