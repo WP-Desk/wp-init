@@ -96,7 +96,7 @@ final class PluginInit {
 	}
 
 	private function get_cache_dir(): string {
-		return $this->filename . '/' . $this->config->get( 'cache_path', 'generated' );
+		return dirname( $this->filename ) . '/' . $this->config->get( 'cache_path', 'generated' );
 	}
 
 	private function initialize_container( Plugin $plugin ): Container {
