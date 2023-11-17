@@ -102,8 +102,10 @@ final class PluginInit {
 	private function initialize_container( Plugin $plugin ): Container {
 		$original_builder = new DiBuilder();
 		$builder = new ContainerBuilder( $original_builder );
-		$builder->add_definitions( $this->config->get( 'container_definitions', [] ) );
-		$builder->add_definitions( __DIR__ . '/Resources/services.inc.php' );
+		$builder->add_definitions(
+			__DIR__ . '/Resources/services.inc.php',
+			$this->config->get( 'services', [] )
+		);
 
 		return $builder->build();
 	}
