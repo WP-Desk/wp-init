@@ -79,13 +79,6 @@ final class Plugin {
 	}
 
 	/**
-	 * Retrieve the plugin directory.
-	 */
-	public function get_directory(): string {
-		return $this->directory;
-	}
-
-	/**
 	 * Retrieve the path to a file in the plugin.
 	 *
 	 * @param string $path Optional. Path relative to the plugin root.
