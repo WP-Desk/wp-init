@@ -10,6 +10,12 @@ use WPDesk\Init\Plugin;
 
 class LegacyHookableDriver implements HookDriver {
 
+	public function __construct() {
+		if (!class_exists(\WPDesk_Plugin_Info::class)) {
+			throw new \LogicException('Legacy driver cannot be used as the plugin builder component is unavailable. Try running "composer require wpdesk/wp-builder".');
+		}
+	}
+
 	public function register_hooks( ReadableConfig $config, array $bundles, ContainerInterface $container ): void {
 		$info = $this->as_plugin_info($container->get(Plugin::class), $config);
 
