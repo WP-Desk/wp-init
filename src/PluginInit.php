@@ -75,7 +75,7 @@ final class PluginInit {
 			$this->filename = $backtrace[0]['file'];
 		}
 
-		$cache_path = $this->config->get( 'cache_path', 'generated' ) . '/plugin.php';
+		$cache_path = $this->get_cache_dir() . '/plugin.php';
 		try {
 			$plugin_data = $this->loader->load( $cache_path );
 		} catch ( \Exception $e ) {
@@ -93,6 +93,10 @@ final class PluginInit {
 		$this->driver->register_hooks( $this->config, $this->bundles, $container );
 
 		return $plugin;
+	}
+
+	private function get_cache_dir(): string {
+		return $this->filename . '/' . $this->config->get( 'cache_path', 'generated' );
 	}
 
 	private function initialize_container( Plugin $plugin ): Container {
