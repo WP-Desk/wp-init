@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Coding Standards for WP Desk Plugin">
+
+	<!--
+	#############################################################################
+	COMMAND LINE ARGUMENTS
+	https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
+	#############################################################################
+	-->
+
+	<!-- Scan all files. -->
+	<file>./src</file>
+
+	<!-- Only check PHP files. -->
+	<arg name="extensions" value="php"/>
+
+	<!-- Show progress, show the error codes for each message (source). -->
+	<arg value="sp"/>
+
+	<!-- Check up to 8 files simultaneously. -->
+	<arg name="parallel" value="8"/>
+
+	<!-- Cache outcomes for better performance. Remember to add the file to .gitignore. -->
+	<arg name="cache" value="./.phpcs-cache"/>
+
+	<!--
+	#############################################################################
+	USE THE WPDeskCS RULESET
+	#############################################################################
+	-->
+
+	<!-- Define plugin text domain for i18n. -->
+	<config name="text_domain" value="wp-init"/>
+
+	<!-- This value should be aligned with WordPress support version declared in plugin header -->
+	<config name="minimum_supported_wp_version" value="6.2"/>
+
+	<!-- Set value aligned with supported PHP Version for PHPCompatibilityWP check. -->
+	<config name="testVersion" value="7.2-"/>
+
+	<rule ref="WPDeskPlugin"/>
+
+	<!--
+	##############################################################################
+	CUSTOM RULES
+	##############################################################################
+	-->
+	<rule ref="Squiz.ControlStructures.InlineIfDeclaration">
+		<exclude name="Squiz.ControlStructures.InlineIfDeclaration.NoBrackets"/>
+	</rule>
+</ruleset>
