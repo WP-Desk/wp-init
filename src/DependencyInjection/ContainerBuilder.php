@@ -34,5 +34,4 @@ final class ContainerBuilder {
 	public function build(): Container {
 		return $this->original_builder->build();
 	}
-
 }

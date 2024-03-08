@@ -16,7 +16,7 @@
  * Requires PHP: 7.2
  */
 
-$plugin = ( new \WPDesk\Init\PluginInit( [
+$plugin = ( new \WPDesk\Init\Kernel( [
 	'bundles'               => [
 		\WPDesk\Init\Bundle\ContainerBundle::class
 	],
@@ -26,4 +26,4 @@ $plugin = ( new \WPDesk\Init\PluginInit( [
 	'hook_subscribers'      => [
 		\WPDesk\Init\Bundle\ContainerBundle::class
 	],
-] ) )->init();
+] ) )->boot();

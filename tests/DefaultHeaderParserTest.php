@@ -3,26 +3,50 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests;
 
-use WPDesk\Init\DefaultHeaderParser;
+use WPDesk\Init\Plugin\DefaultHeaderParser;
 
 class DefaultHeaderParserTest extends TestCase {
 
-	public function test_should_parse_plugin_data(): void {
+	/** @dataProvider provider */
+	public function test_should_parse_plugin_data_from_file( $name,  string $content, array $expected ): void {
+		$file = $this->createTempFile($name, $content);
+
 		$data = new DefaultHeaderParser();
-		$dir  = $this->initTempPlugin();
-
-		$result = $data->parse( $dir . '/simple-plugin.php' );
-
-		$this->assertEquals( [ 'Name' => 'Example plugin' ], $result );
+		$this->assertEquals( $expected, $data->parse( $file ) );
 	}
 
-	public function test_should_parse_whole_plugin_data(): void {
-		$data = new DefaultHeaderParser();
-		$dir  = $this->initTempPlugin( 'advanced-plugin' );
+	public function provider(): iterable {
+		yield [
+			'first.php',
+<<<PHP
+<?php
+/**
+ * Plugin Name: Example plugin
+ */
+PHP,
+			[ 'Name' => 'Example plugin' ],
+		];
 
-		$result = $data->parse( $dir . '/advanced-plugin.php' );
-
-		$this->assertEquals(
+		yield [
+			'second.php',
+<<<PHP
+<?php
+/**
+ * Plugin Name: ShopMagic for WooCommerce
+ * Plugin URI: https://shopmagic.app/
+ * Description: Marketing Automation and Custom Email Designer for WooCommerce
+ * Version: 3.0.9-beta.1
+ * Author: WP Desk
+ * Author URI: https://shopmagic.app/
+ * Text Domain: shopmagic-for-woocommerce
+ * Domain Path: /lang/
+ * Requires at least: 5.0
+ * Tested up to: 6.1
+ * WC requires at least: 4.8
+ * WC tested up to: 7.2
+ * Requires PHP: 7.2
+ */
+PHP,
 			[
 				'Name'        => 'ShopMagic for WooCommerce',
 				'PluginURI'   => 'https://shopmagic.app/',
@@ -36,9 +60,8 @@ class DefaultHeaderParserTest extends TestCase {
 				'RequiresPHP' => '7.2',
 				'TestedWP'    => '6.1',
 				'TestedWC'    => '7.2',
-			],
-			$result
-		);
+],
+		];
 	}
 
 }

@@ -1,12 +1,12 @@
 <?php
 declare( strict_types=1 );
 
-namespace WPDesk\Init;
+namespace WPDesk\Init\Plugin;
 
 class DefaultHeaderParser implements HeaderParser {
 
 	private const KB_IN_BYTES = 1024;
-	private const HEADERS = [
+	private const HEADERS     = [
 		'Name'        => 'Plugin Name',
 		'PluginURI'   => 'Plugin URI',
 		'Version'     => 'Version',
@@ -21,6 +21,7 @@ class DefaultHeaderParser implements HeaderParser {
 		'TestedWP'    => 'Tested up to',
 		'TestedWC'    => 'WC tested up to',
 		'UpdateURI'   => 'Update URI',
+		'RequiresPlugins' => 'Requires Plugins',
 	];
 
 	/**
@@ -138,5 +139,4 @@ class DefaultHeaderParser implements HeaderParser {
 	private function _cleanup_header_comment( string $str ): string {
 		return trim( preg_replace( '/\s*(?:\*\/|\?>).*/', '', $str ) );
 	}
-
 }

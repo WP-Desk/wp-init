@@ -62,6 +62,4 @@ trait HookableParent {
 			$hookable_object->hooks();
 		}
 	}
-
-
 }

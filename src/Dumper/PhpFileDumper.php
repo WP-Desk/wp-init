@@ -9,7 +9,7 @@ class PhpFileDumper {
 		$directory = dirname( $filename );
 		$this->createCompilationDirectory( $directory );
 
-		$content = '<?php' . PHP_EOL . PHP_EOL;
+		$content  = '<?php' . PHP_EOL . PHP_EOL;
 		$content .= 'declare(strict_types=1);' . PHP_EOL . PHP_EOL;
 		$content .= 'return ' . var_export( $config, true ) . ';' . PHP_EOL;
 
@@ -48,5 +48,4 @@ class PhpFileDumper {
 			throw new \InvalidArgumentException( sprintf( 'Error while renaming %s to %s', $tmpFile, $fileName ) );
 		}
 	}
-
 }

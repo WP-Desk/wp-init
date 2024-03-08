@@ -1,6 +1,6 @@
 <?php
 
-namespace WPDesk\Init;
+namespace WPDesk\Init\Plugin;
 
 interface HeaderParser {
 

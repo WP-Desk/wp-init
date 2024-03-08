@@ -7,7 +7,7 @@ include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
 
 $filename = $argv[1] ?? null;
 
-$parser = new \WPDesk\Init\PluginHeaderParser();
+$parser = new \WPDesk\Init\Plugin\DefaultHeaderParser();
 
 $data = $parser->parse( $filename );
 

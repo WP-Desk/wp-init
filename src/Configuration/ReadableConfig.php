@@ -11,5 +11,4 @@ interface ReadableConfig {
 	public function get( string $key, $default = null );
 
 	public function has( string $key ): bool;
-
 }

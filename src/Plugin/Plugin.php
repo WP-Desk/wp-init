@@ -1,7 +1,7 @@
 <?php
 declare( strict_types=1 );
 
-namespace WPDesk\Init;
+namespace WPDesk\Init\Plugin;
 
 final class Plugin {
 
@@ -56,19 +56,20 @@ final class Plugin {
 	 */
 	private $version;
 
-	public function __construct(
-		string $file,
-		string $name,
-		string $version,
-		?string $slug = null,
-	) {
-		$this->file        = $file;
-		$this->name        = $name;
-		$this->version     = $version;
-		$this->basename    = plugin_basename( $file );
-		$this->directory   = rtrim( plugin_dir_path( $file ), '/' ) . '/';
-		$this->url         = rtrim( plugin_dir_url( $file ), '/' ) . '/';
-		$this->slug        = $slug ?? basename( $this->directory );
+	/**
+	 * @var Header
+	 */
+	private $header;
+
+	public function __construct( string $file, Header $header ) {
+		$this->file      = $file;
+		$this->name      = $header['Name'];
+		$this->version   = $header['Version'] ?? '0.0.0';
+		$this->basename  = plugin_basename( $file );
+		$this->directory = rtrim( plugin_dir_path( $file ), '/' ) . '/';
+		$this->url       = rtrim( plugin_dir_url( $file ), '/' ) . '/';
+		$this->slug      = $header['TextDomain'] ?? basename( $this->directory );
+		$this->header    = $header;
 	}
 
 	/**
@@ -118,4 +119,7 @@ final class Plugin {
 		return $this->version;
 	}
 
+	public function header(): Header {
+		return $this->header;
+	}
 }

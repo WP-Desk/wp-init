@@ -9,8 +9,8 @@ use WPDesk\PluginBuilder\Plugin\Hookable;
 /**
  * @implements IteratorAggregate<int,Hookable>
  */
-final class HooksRegistry implements \IteratorAggregate
-{
+final class HooksRegistry implements \IteratorAggregate {
+
 	private static $instance;
 
 	/** @var array<class-string<Hookable>|Hookable> */
