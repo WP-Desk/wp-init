@@ -87,10 +87,10 @@ final class Kernel {
 
 	private function initialize_container( Plugin $plugin ): Container {
 		$original_builder = new DiBuilder();
-$original_builder->enableCompilation(
-$this->get_cache_path(),
-str_replace( '-', '_', $plugin->get_slug() ) . '_container'
-);
+		$original_builder->enableCompilation(
+			$this->get_cache_path(),
+			str_replace( '-', '_', $plugin->get_slug() ) . '_container'
+		);
 		$builder = new ContainerBuilder( $original_builder );
 
 		foreach ( $this->extensions as $extension ) {

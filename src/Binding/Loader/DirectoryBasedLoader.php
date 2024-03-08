@@ -17,13 +17,13 @@ class DirectoryBasedLoader implements BindingDefinitions {
 	/** @var PhpFileLoader */
 	private $loader;
 
-    /** @var DefinitionFactory */
-    private $def_factory;
+	/** @var DefinitionFactory */
+	private $def_factory;
 
 	public function __construct( $path, PhpFileLoader $loader, DefinitionFactory $def_factory ) {
-		$this->path   = new Path( (string) $path );
-		$this->loader = $loader;
-        $this->def_factory = $def_factory;
+		$this->path        = new Path( (string) $path );
+		$this->loader      = $loader;
+		$this->def_factory = $def_factory;
 	}
 
 	public function load(): iterable {
@@ -31,8 +31,8 @@ class DirectoryBasedLoader implements BindingDefinitions {
 			foreach ( $this->path->read_directory() as $filename ) {
 				yield from $this->load_from_file( $filename );
 			}
-		} else  {
-			yield from $this->load_from_file($this->path);
+		} else {
+			yield from $this->load_from_file( $this->path );
 		}
 	}
 
@@ -49,5 +49,4 @@ class DirectoryBasedLoader implements BindingDefinitions {
 
 		yield from (new ArrayBindingLoader( $hooks, $this->def_factory ))->load();
 	}
-
 }

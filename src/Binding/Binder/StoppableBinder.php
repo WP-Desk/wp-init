@@ -47,5 +47,4 @@ class StoppableBinder implements Binder {
 	private function can_be_stoppable( Definition $def ): bool {
 		return is_string( $def->value() ) && class_exists( $def->value() );
 	}
-
 }

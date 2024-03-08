@@ -3,7 +3,6 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\HookDriver;
 
-
 final class CompositeDriver implements HookDriver {
 
 	/** @var HookDriver[] */

@@ -9,11 +9,12 @@ use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
 
 final class CompositeBinder implements Binder {
-    /** @var Binder[] */
-    private $binders;
+
+	/** @var Binder[] */
+	private $binders;
 
 	public function __construct( Binder ...$binders ) {
-        $this->binders = $binders;
+		$this->binders = $binders;
 	}
 
 	public function add( Binder $binder ): void {

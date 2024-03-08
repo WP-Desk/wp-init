@@ -11,7 +11,7 @@ use WPDesk\Init\Plugin\Plugin;
 class LegacyExtension implements Extension {
 
 	public function build( ContainerBuilder $builder, Plugin $plugin, ReadableConfig $config ): void {
-		if ( ! $config->has('plugin_class_name') ) {
+		if ( ! $config->has( 'plugin_class_name' ) ) {
 			throw new \LogicException( 'To use legacy driver you must set "plugin_class_name" in your config pointing to the class name of your plugin.' );
 		}
 

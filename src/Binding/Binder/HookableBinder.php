@@ -10,11 +10,12 @@ use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
 
 class HookableBinder implements Binder {
-    /** @var ContainerInterface */
-    private $container;
+
+	/** @var ContainerInterface */
+	private $container;
 
 	public function __construct( ContainerInterface $c ) {
-        $this->container = $c;
+		$this->container = $c;
 	}
 
 	public function can_bind( Definition $def ): bool {
