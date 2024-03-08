@@ -30,11 +30,11 @@ The above limits your main plugin file to a short and simple structure.
  * Plugin Name: Example Plugin
  */
 
-use WPDesk\Init;
+use WPDesk\Init\Init;
 
 require __DIR__ . '/vendor/autoload.php';
 
-(new Init('config.php'))->boot();
+Init::setup('config.php')->boot();
 ```
 
 ### Plugin configuration
@@ -45,11 +45,13 @@ Supported configuration:
 
 ```php
 <?php
+// TODO: docs about possible configuration keys
 
 return [
 	'services' => 'config/services.inc.php',
-	'hook_binding' => [],
+	'hook_resources_path' => [],
 	'cache_path' => 'generated',
+
 	'requirements' => [],
 
 	'plugin_class_name' => 'Example\Plugin',
@@ -90,12 +92,14 @@ use WPDesk\Init\PluginInit;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$plugin = (new PluginInit())
-    ->set_requirements([
-        'wp' => '6.0',
-        'php' => '7.2'
-    ])
-    ->boot();
+Init::setup(
+	[
+		'requirements' => [
+			'wp' => '6.0',
+			'php' => '7.2'
+		]
+	]
+)->boot();
 ```
 
 ## Credits
@@ -105,9 +109,9 @@ and Alain Schlesser's [`basic-scaffold`](https://github.com/mwpd/basic-scaffold)
 
 ## Roadmap
 
-1. Add support for path based hook providers discovery similar to Symfony's [controllers resolving](https://github.com/symfony/demo/blob/3787b9f71f6bee24f1ed0718b9a808d824008776/config/routes.yaml#L15-L17)
+~1. Add support for path based hook providers discovery similar to Symfony's [controllers resolving](https://github.com/symfony/demo/blob/3787b9f71f6bee24f1ed0718b9a808d824008776/config/routes.yaml#L15-L17)~
 1. Improve `wpdesk/wp-basic-requirements` library. This is not related directly to this project, but internals could be rewritten.
-1. Scrap plugin data from plugin comment
+~1. Scrap plugin data from plugin comments.~
 1. Support *bundles* of hook providers. This should be easy to extend plugin capabilities with shared functions, preserving minimal init system
 
 ## License
