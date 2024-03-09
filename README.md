@@ -39,20 +39,24 @@ Init::setup('config.php')->boot();
 
 ### Plugin configuration
 
-For plugin configuration, you may focus on declarative configuration.
+For plugin configuration, you may focus on succinct, declarative configuration.
 
-Supported configuration:
+[Supported configuration](docs/configuration.md):
 
 ```php
 <?php
-// TODO: docs about possible configuration keys
 
 return [
+	'hook_resources_path' => 'config/hook_providers',
 	'services' => 'config/services.inc.php',
-	'hook_resources_path' => [],
 	'cache_path' => 'generated',
 
-	'requirements' => [],
+	'requirements' => [
+		'plugins' => [
+			'name' => 'woocommerce/woocommerce.php',
+			'nice_name' => 'WooCommerce',
+		]
+	],
 
 	'plugin_class_name' => 'Example\Plugin',
 ];
@@ -71,48 +75,10 @@ string, ready for handling by DI container:
 + $this->add_hookable( \WPDesk\Init\Provider\I18n::class );
 ```
 
-#### Target environment requirements
-
-`wp-init` also integrates with `wpdesk/wp-basic-requirements` to validate target environment and
-detect, whether your plugin can actually instantiate. With this addition, if your plugin fails
-to positively validate environment, your hooks are not triggered, and the website admin is
-provided with actionable message.
-
-```shell
-composer require wpdesk/wp-basic-requirements
-```
-
-```php
-<?php
-/**
- * Plugin Name: Example Plugin
- */
-
-use WPDesk\Init\PluginInit;
-
-require __DIR__ . '/vendor/autoload.php';
-
-Init::setup(
-	[
-		'requirements' => [
-			'wp' => '6.0',
-			'php' => '7.2'
-		]
-	]
-)->boot();
-```
-
 ## Credits
 
 This package is heavily inspired by Cedaro's [`wp-plugin`](https://github.com/cedaro/wp-plugin/)
 and Alain Schlesser's [`basic-scaffold`](https://github.com/mwpd/basic-scaffold).
-
-## Roadmap
-
-~1. Add support for path based hook providers discovery similar to Symfony's [controllers resolving](https://github.com/symfony/demo/blob/3787b9f71f6bee24f1ed0718b9a808d824008776/config/routes.yaml#L15-L17)~
-1. Improve `wpdesk/wp-basic-requirements` library. This is not related directly to this project, but internals could be rewritten.
-~1. Scrap plugin data from plugin comments.~
-1. Support *bundles* of hook providers. This should be easy to extend plugin capabilities with shared functions, preserving minimal init system
 
 ## License
 
