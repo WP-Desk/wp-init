@@ -37,6 +37,7 @@ definitions. Refer to [php-di documentation](https://php-di.org/doc/definitions.
 information on such file content.
 
 > Warning
+>
 > If you are using _shortcut_ functions from `php-di/php-di` (e.g. `DI\autowire`, `DI\create`), you
 > must load them first. Add `require __DIR__ . '/vendor_prefixed/php-di/php-di/src/functions.php';`
 > to your plugin file.
