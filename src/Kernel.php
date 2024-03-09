@@ -85,12 +85,21 @@ final class Kernel {
 		);
 	}
 
+	private function get_container_name( Plugin $plugin ): string {
+		return str_replace( '-', '_', $plugin->get_slug() ) . '_container';
+	}
+
 	private function initialize_container( Plugin $plugin ): Container {
 		$original_builder = new DiBuilder();
 		$original_builder->enableCompilation(
 			$this->get_cache_path(),
-			str_replace( '-', '_', $plugin->get_slug() ) . '_container'
+			$this->get_container_name( $plugin )
 		);
+
+		if ( file_exists( $this->get_cache_path( $this->get_container_name( $plugin ) . '.php' ) ) ) {
+			return $original_builder->build();
+		}
+
 		$builder = new ContainerBuilder( $original_builder );
 
 		foreach ( $this->extensions as $extension ) {
