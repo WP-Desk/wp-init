@@ -8,7 +8,7 @@ use WPDesk\Init\Binding\Loader\BindingDefinitions;
 
 class GenericDriver implements HookDriver {
 
-	/** @var BindingDefinitionLoader */
+	/** @var BindingDefinitions */
 	private $definitions;
 
 	/** @var Binder */

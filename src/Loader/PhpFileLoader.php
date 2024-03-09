@@ -11,7 +11,6 @@ class PhpFileLoader {
 	 * @return mixed
 	 */
 	public function load( $resource ) {
-		// TODO: add file locator
 		return ( static function () use ( $resource ) {
 			if ( ! is_readable( (string) $resource ) ) {
 				throw new \RuntimeException( "Could not load $resource" );

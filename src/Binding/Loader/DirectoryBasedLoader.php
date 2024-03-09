@@ -4,9 +4,7 @@ declare( strict_types=1 );
 namespace WPDesk\Init\Binding\Loader;
 
 use WPDesk\Init\Binding\DefinitionFactory;
-use WPDesk\Init\Plugin\Plugin;
 use WPDesk\Init\Util\Path;
-use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\Loader\PhpFileLoader;
 
 class DirectoryBasedLoader implements BindingDefinitions {
@@ -20,10 +18,10 @@ class DirectoryBasedLoader implements BindingDefinitions {
 	/** @var DefinitionFactory */
 	private $def_factory;
 
-	public function __construct( $path, PhpFileLoader $loader, DefinitionFactory $def_factory ) {
+	public function __construct( $path, ?PhpFileLoader $loader = null, ?DefinitionFactory $def_factory = null ) {
 		$this->path        = new Path( (string) $path );
-		$this->loader      = $loader;
-		$this->def_factory = $def_factory;
+		$this->loader      = $loader ?? new PhpFileLoader();
+		$this->def_factory = $def_factory ?? new DefinitionFactory();
 	}
 
 	public function load(): iterable {
@@ -47,6 +45,6 @@ class DirectoryBasedLoader implements BindingDefinitions {
 			$hooks = [ $filename->get_filename_without_extension() => $hooks ];
 		}
 
-		yield from (new ArrayBindingLoader( $hooks, $this->def_factory ))->load();
+		yield from (new ArrayBindingLoader( $hooks ) )->load();
 	}
 }
