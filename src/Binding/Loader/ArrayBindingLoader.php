@@ -12,15 +12,12 @@ class ArrayBindingLoader implements BindingDefinitions {
 	/** @var array */
 	private $bindings;
 
-	/**
-	 * @var DefinitionFactory
-	 */
+	/** @var DefinitionFactory */
 	private $factory;
 
-
-	public function __construct( array $bindings, DefinitionFactory $factory ) {
+	public function __construct( array $bindings, ?DefinitionFactory $factory = null) {
 		$this->bindings = $bindings;
-		$this->factory  = $factory;
+		$this->factory  = $factory ?? new DefinitionFactory();
 	}
 
 	public function load(): iterable {
