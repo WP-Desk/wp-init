@@ -2,10 +2,10 @@
 
 namespace WPDesk\Init\CommonBinding;
 
-use WPDesk\Init\Binding\HookBinder;
+use WPDesk\Init\Binding\Hookable;
 use WPDesk\Init\Plugin\Plugin;
 
-class I18n implements HookBinder {
+class I18n implements Hookable {
 
 	/** @var Plugin */
 	private $plugin;
@@ -14,7 +14,7 @@ class I18n implements HookBinder {
 		$this->plugin = $plugin;
 	}
 
-	public function bind(): void {
+	public function hooks(): void {
 		if ( did_action( 'plugins_loaded' ) ) {
 			$this->load_textdomain();
 		} else {

@@ -20,7 +20,7 @@ class RequirementsCheck implements StoppableBinder {
 		);
 	}
 
-	public function bind(): void {
+	public function hooks(): void {
 		if ( $this->should_stop() ) {
 			$this->checker->render_notices();
 		}

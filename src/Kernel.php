@@ -8,13 +8,9 @@ use DI\ContainerBuilder as DiBuilder;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Binder\CallableBinder;
 use WPDesk\Init\Binding\Binder\CompositeBinder;
-use WPDesk\Init\Binding\Binder\HookBinderBinder;
 use WPDesk\Init\Binding\Binder\HookableBinder;
 use WPDesk\Init\Binding\Binder\StoppableBinder;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
-use WPDesk\Init\Binding\DefinitionFactory;
-use WPDesk\Init\Binding\Loader\ConfigurationBindingLoader;
-use WPDesk\Init\Binding\Loader\DirectoryBasedLoader;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Extension\ExtensionsSet;
@@ -111,7 +107,7 @@ final class Kernel {
 
 	private function prepare_driver( ContainerInterface $container ): HookDriver {
 		$loader = new CompositeBindingLoader();
-		foreach ( $this->extensions->bindings($container) as $bindings ) {
+		foreach ( $this->extensions->bindings( $container ) as $bindings ) {
 			$loader->add( $bindings );
 		}
 
@@ -120,7 +116,6 @@ final class Kernel {
 			new StoppableBinder(
 				new CompositeBinder(
 					new HookableBinder( $container ),
-					new HookBinderBinder( $container ),
 					new CallableBinder( $container )
 				),
 				$container
