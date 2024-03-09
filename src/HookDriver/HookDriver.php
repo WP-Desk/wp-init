@@ -3,9 +3,6 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\HookDriver;
 
-use Psr\Container\ContainerInterface;
-use WPDesk\Init\Configuration\ReadableConfig;
-
 /**
  * Hook can be attached to WordPress in different ways, and this
  * interface decouples possible methods from our initialization system,
