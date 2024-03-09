@@ -7,6 +7,7 @@ namespace WPDesk\Init\Binding;
 use WPDesk\Init\Binding\Definition\CallableDefinition;
 use WPDesk\Init\Binding\Definition\HookBinderDefinition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
+use WPDesk\Init\Binding\Definition\UnknownDefinition;
 use WPDesk\PluginBuilder\Plugin\Hookable;
 
 class DefinitionFactory {
@@ -21,13 +22,11 @@ class DefinitionFactory {
 				return new HookBinderDefinition( $value, $hook );
 			}
 		}
+
 		if ( is_callable( $value ) ) {
 			return new CallableDefinition( $value, $hook );
 		}
-		// if ( is_array( $value ) ) {
-		// return new ArrayDefinition( $value, $hook );
-		// }
 
-		throw new \InvalidArgumentException( 'Unknown definition type' );
+		return new UnknownDefinition( $value, $hook );
 	}
 }
