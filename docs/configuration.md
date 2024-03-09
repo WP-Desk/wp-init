@@ -51,7 +51,7 @@ setting. Defaults to `generated`.
 **This setting only works when `wpdesk/wp-basic-requirements` is installed.**
 
 Enables your plugin to check an environment requirement before instantiation, e.g. PHP version or
-active plugins. Refer to [wp-basic-requirements documentation](https: //gitlab.wpdesk.dev/wpdesk/wp-basic-requirements)
+active plugins. Refer to [wp-basic-requirements documentation](https://gitlab.wpdesk.dev/wpdesk/wp-basic-requirements)
 for more information on setting structure.
 
 ## `plugin_class_name`
