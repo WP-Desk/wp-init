@@ -17,7 +17,7 @@ use WPDesk\Init\Extension\ExtensionsSet;
 use WPDesk\Init\HookDriver\CompositeDriver;
 use WPDesk\Init\HookDriver\GenericDriver;
 use WPDesk\Init\HookDriver\HookDriver;
-use WPDesk\Init\HookDriver\LegacyHookableDriver;
+use WPDesk\Init\HookDriver\LegacyDriver;
 use WPDesk\Init\Loader\PhpFileLoader;
 use WPDesk\Init\Plugin\Header;
 use WPDesk\Init\Util\Path;
@@ -124,7 +124,7 @@ final class Kernel {
 		if ( class_exists( \WPDesk_Plugin_Info::class ) ) {
 			$driver = new CompositeDriver(
 				$driver,
-				new LegacyHookableDriver( $container )
+				new LegacyDriver( $container )
 			);
 		}
 
