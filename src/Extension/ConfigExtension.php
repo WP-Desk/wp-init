@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\DefinitionFactory;
 use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
-use WPDesk\Init\Binding\Loader\ConfigurationBindingLoader;
+use WPDesk\Init\Binding\Loader\DirectoryBasedLoader;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
@@ -21,11 +21,8 @@ class ConfigExtension implements Extension {
 	public function bindings( ContainerInterface $c ): BindingDefinitions {
 		$config = $c->get( Configuration::class );
 		if ( $config->has( 'hook_resources_path' ) ) {
-			return new ConfigurationBindingLoader(
-				$c->get( Configuration::class ),
-				$c->get( Plugin::class )->get_path(),
-				new PhpFileLoader(),
-				new DefinitionFactory()
+			return new DirectoryBasedLoader(
+				( new Path( $config->get( 'hook_resources_path' ) ) )->absolute( $c->get( Plugin::class )->get_path() )
 			);
 		}
 
