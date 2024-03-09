@@ -71,8 +71,7 @@ final class Kernel {
 		$container->set( Plugin::class, $plugin );
 		$container->set( Configuration::class, $this->config );
 
-		$driver = $this->prepare_driver( $container );
-		$driver->register_hooks( $this->config, $container );
+		$this->prepare_driver( $container )->register_hooks();
 	}
 
 	private function get_cache_path( string $path = '' ): string {

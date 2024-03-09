@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace WPDesk\Init\Extension;
 
 use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\DefinitionFactory;
 use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Binding\Loader\DirectoryBasedLoader;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
-use WPDesk\Init\Loader\PhpFileLoader;
 use WPDesk\Init\Plugin\Plugin;
 use WPDesk\Init\Util\Path;
 

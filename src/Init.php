@@ -5,25 +5,12 @@
 
 namespace WPDesk\Init;
 
-use WPDesk\Init\Binding\Binder\CallableBinder;
-use WPDesk\Init\Binding\Binder\CompositeBinder;
-use WPDesk\Init\Binding\Binder\HookableBinder;
-use WPDesk\Init\Binding\Loader\DirectoryBasedLoader;
-use WPDesk\Init\Binding\DefinitionFactory;
-use WPDesk\Init\CommonBinding\I18n;
-use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
-use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
 use WPDesk\Init\Extension\LegacyExtension;
 use WPDesk\Init\Extension\BuiltinExtension;
 use WPDesk\Init\Extension\ConfigExtension;
 use WPDesk\Init\Extension\ExtensionsSet;
-use WPDesk\Init\HookDriver\CompositeDriver;
-use WPDesk\Init\HookDriver\GenericDriver;
-use WPDesk\Init\HookDriver\HookDriver;
-use WPDesk\Init\HookDriver\LegacyHookableDriver;
 use WPDesk\Init\Loader\PhpFileLoader;
 use WPDesk\Init\Configuration\Configuration;
-use WPDesk\Init\Util\Path;
 
 final class Init {
 
