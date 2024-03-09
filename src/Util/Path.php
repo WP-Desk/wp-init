@@ -14,7 +14,7 @@ final class Path {
 	}
 
 	public function canonical(): self {
-		$root = '/';
+		$root = str_starts_with( $this->path, '/' ) ? '/' : '';
 		return new self( $root . implode( '/', $this->find_canonical_parts() ) );
 	}
 
@@ -25,6 +25,7 @@ final class Path {
 
 	private function find_canonical_parts(): array {
 		$parts = explode( '/', $this->path );
+		$root  = str_starts_with( $this->path, '/' ) ? '/' : '';
 
 		$canonical_parts = [];
 
@@ -81,7 +82,12 @@ final class Path {
 			function ( $file ) {
 				return ( new self( $file ) )->absolute( $this->path );
 			},
-			scandir( $this->path )
+			array_values(
+				array_diff(
+					scandir( $this->path ),
+					[ '.', '..' ]
+				)
+			)
 		);
 	}
 
