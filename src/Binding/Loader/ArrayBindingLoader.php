@@ -29,11 +29,15 @@ class ArrayBindingLoader implements BindingDefinitions {
 		foreach ( $bindings as $key => $value ) {
 			if ( is_array( $value ) ) {
 				foreach ( $value as $unit ) {
-					yield $this->factory->create( $unit, is_int( $key ) ? null : $key );
+					yield $this->create( $unit, $key );
 				}
 			} else {
-				yield $this->factory->create( $value, is_int( $key ) ? null : $key );
+				yield $this->create( $value, $key );
 			}
 		}
+	}
+
+	private function create( $value, $hook ) {
+		return $this->factory->create( $value, is_int( $hook ) ? null : $hook );
 	}
 }
