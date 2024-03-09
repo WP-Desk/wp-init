@@ -21,12 +21,9 @@ Example of a hook resource content:
 return [
 	MyCoolTitleChanger::class,
 	AnotherHookAction::class,
-	function ( Dependency $dep ) {
+	function ( Migarator $migrator ) {
 		// You can even use a closure, to execute simple actions.
 		// Arguments are injected by DI container.
-		$dep->one_off_action();
-	},
-	function ( Migarator $migrator ) {
 		$migrator->migrate();
 	}
 ];
