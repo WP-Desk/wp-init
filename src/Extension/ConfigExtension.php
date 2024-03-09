@@ -7,7 +7,7 @@ namespace WPDesk\Init\Extension;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
-use WPDesk\Init\Binding\Loader\DirectoryBasedLoader;
+use WPDesk\Init\Binding\Loader\FilesystemDefinitions;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
@@ -19,7 +19,7 @@ class ConfigExtension implements Extension {
 	public function bindings( ContainerInterface $c ): BindingDefinitions {
 		$config = $c->get( Configuration::class );
 		if ( $config->has( 'hook_resources_path' ) ) {
-			return new DirectoryBasedLoader(
+			return new FilesystemDefinitions(
 				( new Path( $config->get( 'hook_resources_path' ) ) )->absolute( $c->get( Plugin::class )->get_path() )
 			);
 		}

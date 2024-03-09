@@ -7,7 +7,7 @@ use WPDesk\Init\Binding\DefinitionFactory;
 use WPDesk\Init\Util\Path;
 use WPDesk\Init\Loader\PhpFileLoader;
 
-class DirectoryBasedLoader implements BindingDefinitions {
+class FilesystemDefinitions implements BindingDefinitions {
 
 	/** @var Path */
 	private $path;

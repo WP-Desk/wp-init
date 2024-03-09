@@ -7,7 +7,7 @@ namespace WPDesk\Init\Extension;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\DefinitionFactory;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
-use WPDesk\Init\Binding\Loader\DirectoryBasedLoader;
+use WPDesk\Init\Binding\Loader\FilesystemDefinitions;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Loader\PhpFileLoader;
@@ -16,7 +16,7 @@ use WPDesk\Init\Plugin\Plugin;
 class BuiltinExtension implements Extension {
 
 	public function bindings(ContainerInterface $c): BindingDefinitions {
-		return new DirectoryBasedLoader(
+		return new FilesystemDefinitions(
 			__DIR__ . '/../Resources/bindings',
 			new PhpFileLoader(),
 			new DefinitionFactory()
