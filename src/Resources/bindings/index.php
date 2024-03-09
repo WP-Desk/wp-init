@@ -1,7 +1,7 @@
 <?php
 
-use WPDesk\Init\CommonBinding\I18n;
-use WPDesk\Init\CommonBinding\RequirementsCheck;
+use WPDesk\Init\Extension\CommonBinding\I18n;
+use WPDesk\Init\Extension\CommonBinding\RequirementsCheck;
 
 return [
 	RequirementsCheck::class,

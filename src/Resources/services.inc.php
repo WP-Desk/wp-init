@@ -1,11 +1,8 @@
 <?php
 
 use DI\Definition\Helper\AutowireDefinitionHelper;
-use WPDesk\Init\CommonBinding\I18n;
-use WPDesk\Init\CommonBinding\RequirementsCheck;
-/**
- * Define useful bindings for WordPress context.
- */
+use WPDesk\Init\Extension\CommonBinding\I18n;
+use WPDesk\Init\Extension\CommonBinding\RequirementsCheck;
 
 return [
 	wpdb::class              => static function () {

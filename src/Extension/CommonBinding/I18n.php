@@ -1,6 +1,6 @@
 <?php
 
-namespace WPDesk\Init\CommonBinding;
+namespace WPDesk\Init\Extension\CommonBinding;
 
 use WPDesk\Init\Binding\Hookable;
 use WPDesk\Init\Plugin\Plugin;
