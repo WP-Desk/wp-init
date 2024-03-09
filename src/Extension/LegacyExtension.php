@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace WPDesk\Init\Extension;
 
+use Psr\Container\ContainerInterface;
+use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
+use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Plugin\Plugin;
@@ -36,5 +39,9 @@ class LegacyExtension implements Extension {
 		// $plugin_info->set_plugin_shops( $this->plugin_shops );
 
 		return $plugin_info;
+	}
+
+	public function bindings( ContainerInterface $c ): BindingDefinitions {
+		return new ArrayBindingLoader( [] );
 	}
 }

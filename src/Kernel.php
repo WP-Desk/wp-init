@@ -110,22 +110,9 @@ final class Kernel {
 	}
 
 	private function prepare_driver( ContainerInterface $container ): HookDriver {
-		$loader = new DirectoryBasedLoader(
-			__DIR__ . '/Resources/bindings/index.php',
-			new PhpFileLoader(),
-			new DefinitionFactory()
-		);
-
-		if ( $this->config->has( 'hook_resources_path' ) ) {
-			$loader = new CompositeBindingLoader( $loader );
-			$loader->add(
-				new ConfigurationBindingLoader(
-					$this->config,
-					plugin_dir_path( $this->filename ),
-					new PhpFileLoader(),
-					new DefinitionFactory()
-				)
-			);
+		$loader = new CompositeBindingLoader();
+		foreach ( $this->extensions->bindings($container) as $bindings ) {
+			$loader->add( $bindings );
 		}
 
 		$driver = new GenericDriver(
