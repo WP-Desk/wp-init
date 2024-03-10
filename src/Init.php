@@ -9,7 +9,7 @@ use WPDesk\Init\Extension\LegacyExtension;
 use WPDesk\Init\Extension\BuiltinExtension;
 use WPDesk\Init\Extension\ConfigExtension;
 use WPDesk\Init\Extension\ExtensionsSet;
-use WPDesk\Init\Loader\PhpFileLoader;
+use WPDesk\Init\Util\PhpFileLoader;
 use WPDesk\Init\Configuration\Configuration;
 
 final class Init {

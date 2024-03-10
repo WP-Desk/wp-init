@@ -18,7 +18,7 @@ use WPDesk\Init\HookDriver\CompositeDriver;
 use WPDesk\Init\HookDriver\GenericDriver;
 use WPDesk\Init\HookDriver\HookDriver;
 use WPDesk\Init\HookDriver\LegacyDriver;
-use WPDesk\Init\Loader\PhpFileLoader;
+use WPDesk\Init\Util\PhpFileLoader;
 use WPDesk\Init\Plugin\Header;
 use WPDesk\Init\Util\Path;
 use WPDesk\Init\Plugin\DefaultHeaderParser;

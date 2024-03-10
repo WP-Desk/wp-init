@@ -1,7 +1,7 @@
 <?php
 declare( strict_types=1 );
 
-namespace WPDesk\Init\Dumper;
+namespace WPDesk\Init\Util;
 
 class PhpFileDumper {
 

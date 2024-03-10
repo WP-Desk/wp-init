@@ -5,7 +5,7 @@ namespace WPDesk\Init\Binding\Loader;
 
 use WPDesk\Init\Binding\DefinitionFactory;
 use WPDesk\Init\Util\Path;
-use WPDesk\Init\Loader\PhpFileLoader;
+use WPDesk\Init\Util\PhpFileLoader;
 
 class FilesystemDefinitions implements BindingDefinitions {
 

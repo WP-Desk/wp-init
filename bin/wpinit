@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-use WPDesk\Init\Dumper\PhpFileDumper;
+use WPDesk\Init\Util\PhpFileDumper;
 
 include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
 

@@ -1,7 +1,7 @@
 <?php
 declare( strict_types=1 );
 
-namespace WPDesk\Init\Loader;
+namespace WPDesk\Init\Util;
 
 class PhpFileLoader {
 
