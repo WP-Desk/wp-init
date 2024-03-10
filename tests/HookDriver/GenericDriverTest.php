@@ -8,7 +8,7 @@ use WPDesk\Init\Binding\ObservableBinder;
 use WPDesk\Init\HookDriver\GenericDriver;
 use WPDesk\Init\Configuration\Configuration;
 use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
+use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\StoppableBinder;
 use WPDesk\Init\Tests\TestCase;
 
@@ -59,7 +59,7 @@ class GenericDriverTest extends TestCase {
 
 	/** @dataProvider provider */
 	public function test_register_hooks( array $hook_bindings, callable $assertion ): void {
-		$driver = new GenericDriver( new ArrayBindingLoader(array_keys($hook_bindings)) );
+		$driver = new GenericDriver( new ArrayDefinitions(array_keys($hook_bindings)) );
 		$driver->register_hooks( new Configuration([]), $this->getContainer($hook_bindings) );
 
 

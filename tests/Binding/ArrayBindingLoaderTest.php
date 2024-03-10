@@ -3,18 +3,18 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\Binding;
 
-use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
+use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Tests\TestCase;
 
 class ArrayBindingLoaderTest extends TestCase {
 
 	public function test_loading_empty_bindings(): void {
-		$a = new ArrayBindingLoader([]);
+		$a = new ArrayDefinitions([]);
 		$this->assertEquals(0, iterator_count($a->load()));
 	}
 
 	public function test_loading_structured_bindings(): void {
-		$a = new ArrayBindingLoader([
+		$a = new ArrayDefinitions([
 			'hook' => [
 				'bind1',
 				'bind2',
@@ -38,7 +38,7 @@ class ArrayBindingLoaderTest extends TestCase {
 	}
 
 	public function test_loading_unstructured_bindings(): void {
-		$a = new ArrayBindingLoader([
+		$a = new ArrayDefinitions([
 			'bind1',
 			'bind2',
 			'hook' => 'bind3',
@@ -51,7 +51,7 @@ class ArrayBindingLoaderTest extends TestCase {
 			iterator_to_array($a->load())
 		);
 
-		$a = new ArrayBindingLoader([
+		$a = new ArrayDefinitions([
 			'bind1',
 			'not_a_hook' => 'bind2',
 			'hook' => ['bind3'],

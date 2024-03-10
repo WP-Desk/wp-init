@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace WPDesk\Init\Extension;
 
 use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
+use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Binding\Loader\FilesystemDefinitions;
 use WPDesk\Init\Configuration\Configuration;
@@ -24,7 +24,7 @@ class ConfigExtension implements Extension {
 			);
 		}
 
-		return new ArrayBindingLoader( [] );
+		return new ArrayDefinitions( [] );
 	}
 
 	public function build( ContainerBuilder $builder, Plugin $plugin, ReadableConfig $config ): void {

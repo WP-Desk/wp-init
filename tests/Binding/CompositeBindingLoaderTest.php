@@ -3,20 +3,20 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\Binding;
 
-use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
+use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
 use WPDesk\Init\Tests\TestCase;
 
 class CompositeBindingLoaderTest extends TestCase {
 
 	public function test_loading_empty_bindings(): void {
-		$a = new CompositeBindingLoader(new ArrayBindingLoader([]));
+		$a = new CompositeBindingLoader(new ArrayDefinitions([]));
 		$this->assertEquals(0, iterator_count($a->load()));
 	}
 
 	public function test_loading_structured_bindings(): void {
 		$a = new CompositeBindingLoader(
-			new ArrayBindingLoader(
+			new ArrayDefinitions(
 				[
 					'hook' => [
 						'bind1',
@@ -24,7 +24,7 @@ class CompositeBindingLoaderTest extends TestCase {
 					],
 				]
 			),
-			new ArrayBindingLoader(
+			new ArrayDefinitions(
 				[
 					'hook2' => [
 						'bind3',
@@ -48,13 +48,13 @@ class CompositeBindingLoaderTest extends TestCase {
 
 	public function test_loading_unstructured_bindings(): void {
 		$a = new CompositeBindingLoader(
-			new ArrayBindingLoader(	[
+			new ArrayDefinitions(	[
 				'bind1',
 			]),
-			new ArrayBindingLoader([
+			new ArrayDefinitions([
 				'bind2',
 			]),
-			new ArrayBindingLoader([
+			new ArrayDefinitions([
 				'hook' => 'bind3',
 			])
 		);
@@ -71,13 +71,13 @@ class CompositeBindingLoaderTest extends TestCase {
 		);
 
 		$a = new CompositeBindingLoader(
-			new ArrayBindingLoader([
+			new ArrayDefinitions([
 				'bind1',
 			]),
-			new ArrayBindingLoader([
+			new ArrayDefinitions([
 			'not_a_hook' => 'bind2',
 			]),
-			new ArrayBindingLoader([
+			new ArrayDefinitions([
 			'hook' => ['bind3'],
 			]),
 		);

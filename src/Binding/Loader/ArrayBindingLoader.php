@@ -7,7 +7,7 @@ use WPDesk\Init\Binding\DefinitionFactory;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\Plugin\Plugin;
 
-class ArrayBindingLoader implements BindingDefinitions {
+class ArrayDefinitions implements BindingDefinitions {
 
 	/** @var array */
 	private $bindings;

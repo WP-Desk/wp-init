@@ -45,6 +45,6 @@ class FilesystemDefinitions implements BindingDefinitions {
 			$hooks = [ $filename->get_filename_without_extension() => $hooks ];
 		}
 
-		yield from (new ArrayBindingLoader( $hooks ) )->load();
+		yield from (new ArrayDefinitions( $hooks ) )->load();
 	}
 }

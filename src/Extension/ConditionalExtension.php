@@ -11,7 +11,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 use Monolog\Processor\UidProcessor;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
+use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
@@ -33,7 +33,7 @@ class ConditionalExtension implements Extension {
 			$bindings[] = WPDeskTrackerBridge::class;
 		}
 
-		return new ArrayBindingLoader( $bindings );
+		return new ArrayDefinitions( $bindings );
 	}
 
 	public function build( ContainerBuilder $builder, Plugin $plugin, ReadableConfig $config ): void {

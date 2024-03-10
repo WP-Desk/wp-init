@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WPDesk\Init\Extension;
 
 use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Loader\ArrayBindingLoader;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
