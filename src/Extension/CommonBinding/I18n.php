@@ -16,13 +16,13 @@ class I18n implements Hookable {
 
 	public function hooks(): void {
 		if ( did_action( 'plugins_loaded' ) ) {
-			$this->load_textdomain();
+			$this->__invoke();
 		} else {
-			add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
+			add_action( 'plugins_loaded', $this );
 		}
 	}
 
-	public function load_textdomain(): void {
+	public function __invoke(): void {
 		\load_plugin_textdomain(
 			$this->plugin->get_slug(),
 			false,

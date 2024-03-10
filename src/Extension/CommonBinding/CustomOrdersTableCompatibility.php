@@ -1,0 +1,32 @@
+<?php
+
+namespace WPDesk\Init\Extension\CommonBinding;
+
+use WPDesk\Init\Binding\Hookable;
+use WPDesk\Init\Plugin\Plugin;
+
+class CustomOrdersTableCompatibility implements Hookable {
+
+	/** @var Plugin */
+	private $plugin;
+
+	public function __construct( Plugin $plugin ) {
+		$this->plugin = $plugin;
+	}
+
+	public function hooks(): void {
+		add_action('before_woocommerce_init', $this);
+	}
+
+	public function __invoke(): void {
+		$features_util_class = '\\' . 'Automattic' . '\\' . 'WooCommerce' . '\\' . 'Utilities' . '\\' . 'FeaturesUtil';
+		if ( class_exists( $features_util_class ) ) {
+			$features_util_class::declare_compatibility(
+				'custom_order_tables',
+				$this->plugin->get_basename(),
+				true
+			);
+		}
+
+	}
+}
