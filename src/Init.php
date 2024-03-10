@@ -56,19 +56,17 @@ final class Init {
 		$backtrace = \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS, 1 );
 		$filename  = $backtrace[0]['file'];
 
-		$extensions = new ExtensionsSet();
-		$this->discover_extensions( $extensions );
-
-		$kernel = new Kernel( $filename, $this->config, $extensions );
-		$kernel->boot();
-	}
-
-	private function discover_extensions( $extensions ) {
-		$extensions->add( new ConfigExtension() );
-		$extensions->add( new BuiltinExtension() );
+		$extensions = new ExtensionsSet(
+			new BuiltinExtension(),
+			new ConfigExtension(),
+			new ConditionalExtension()
+		);
 
 		if ( class_exists( \WPDesk_Plugin_Info::class ) ) {
 			$extensions->add( new LegacyExtension() );
 		}
+
+		$kernel = new Kernel( $filename, $this->config, $extensions );
+		$kernel->boot();
 	}
 }
