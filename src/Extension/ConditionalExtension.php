@@ -15,6 +15,7 @@ use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
+use WPDesk\Init\Extension\CommonBinding\RequirementsCheck;
 use WPDesk\Init\Extension\CommonBinding\WPDeskLicenseBridge;
 use WPDesk\Init\Extension\CommonBinding\WPDeskTrackerBridge;
 use WPDesk\Init\Plugin\Plugin;
@@ -24,6 +25,10 @@ class ConditionalExtension implements Extension {
 
 	public function bindings( ContainerInterface $c ): BindingDefinitions {
 		$bindings = [];
+
+		if ( class_exists( \WPDesk_Basic_Requirement_Checker::class ) ) {
+			$bindings[] = RequirementsCheck::class;
+		}
 
 		if ( class_exists( \WPDesk\License\PluginRegistrator::class ) ) {
 			$bindings[] = WPDeskLicenseBridge::class;
@@ -38,6 +43,10 @@ class ConditionalExtension implements Extension {
 
 	public function build( ContainerBuilder $builder, Plugin $plugin, ReadableConfig $config ): void {
 		$definitions = [];
+
+		if ( class_exists( \WPDesk_Basic_Requirement_Checker::class ) ) {
+			$definitions[ RequirementsCheck::class ] = new AutowireDefinitionHelper();
+		}
 
 		if ( class_exists( \WPDesk\License\PluginRegistrator::class ) ) {
 			$definitions[ WPDeskLicenseBridge::class ] = new AutowireDefinitionHelper();
