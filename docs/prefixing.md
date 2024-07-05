@@ -7,7 +7,7 @@ introduce following configuration to your `scoper.inc.php` file.
 - Whitelist `vendor/php-di/php-di/src/Compiler/Template.php`
 - Include `php-di` and it's dependencies in finders
 
-> Note
+> *Note*
 >
 > Pay attention to actual installed `php-di/php-di` version, as it's dependencies may change,
 > requiring to update `scoper.inc.php` accordingly.

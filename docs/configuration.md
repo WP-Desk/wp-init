@@ -36,7 +36,7 @@ definitions for a DI container to create objects. Pass a path to a file, which w
 definitions. Refer to [php-di documentation](https://php-di.org/doc/definitions.html) for more
 information on such file content.
 
-> Warning
+> *Warning*
 >
 > If you are using _shortcut_ functions from `php-di/php-di` (e.g. `DI\autowire`, `DI\create`), you
 > must load them first. Add `require __DIR__ . '/vendor_prefixed/php-di/php-di/src/functions.php';`
