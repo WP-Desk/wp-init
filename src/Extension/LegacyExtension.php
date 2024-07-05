@@ -6,6 +6,7 @@ namespace WPDesk\Init\Extension;
 
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
+use WPDesk\Init\Binding\Loader\EmptyDefinitions;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Plugin\Plugin;
@@ -41,6 +42,6 @@ class LegacyExtension implements Extension {
 	}
 
 	public function bindings( ContainerInterface $c ): BindingDefinitions {
-		return new ArrayBindingLoader( [] );
+		return new EmptyDefinitions();
 	}
 }
