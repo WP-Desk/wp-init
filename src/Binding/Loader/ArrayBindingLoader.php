@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Binding\Loader;
 
+use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\DefinitionFactory;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\Plugin\Plugin;
@@ -24,8 +25,7 @@ class ArrayDefinitions implements BindingDefinitions {
 		yield from $this->normalize( $this->bindings );
 	}
 
-	private function normalize( $bindings ) {
-		$normalized = [];
+	private function normalize( iterable $bindings ): iterable {
 		foreach ( $bindings as $key => $value ) {
 			if ( is_array( $value ) ) {
 				foreach ( $value as $unit ) {
@@ -37,7 +37,11 @@ class ArrayDefinitions implements BindingDefinitions {
 		}
 	}
 
-	private function create( $value, $hook ) {
+	/**
+     * @param mixed $value
+	 * @param int|string $hook
+	 */
+	private function create( $value, $hook ): Definition {
 		return $this->factory->create( $value, is_int( $hook ) ? null : $hook );
 	}
 }
