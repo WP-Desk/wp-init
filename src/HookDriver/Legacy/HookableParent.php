@@ -29,7 +29,7 @@ trait HookableParent {
 	 */
 	public function get_hookable_instance_by_class_name( $class_name ) {
 		if ( $this->registry === null ) {
-			return;
+			return false;
 		}
 
 		foreach ( $this->registry as $hookable_object ) {

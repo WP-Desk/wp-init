@@ -24,6 +24,6 @@ final class LegacyDriver implements HookDriver {
 		$info       = $this->container->get( \WPDesk_Plugin_Info::class );
 		$class_name = $info->get_class_name();
 		$p          = new $class_name( $info );
-		add_action( 'plugins_loaded', [ $p, 'init' ], -45 );
+		add_action( 'plugins_loaded', [ $p, 'init' ], -50 );
 	}
 }
