@@ -34,7 +34,7 @@ class FilesystemDefinitions implements BindingDefinitions {
 		}
 	}
 
-	private function load_from_file( Path $filename ) {
+	private function load_from_file( Path $filename ): iterable {
 		if ( ! $filename->is_file() ) {
 			return;
 		}
