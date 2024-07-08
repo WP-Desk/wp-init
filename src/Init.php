@@ -48,13 +48,18 @@ final class Init {
 		}
 	}
 
-	public function boot() {
+	/**
+	 * @param string|null $filename Filename of the booted plugin. May be null, if called from plugin's main file.
+	 */
+	public function boot( string? $filename = null ) {
 		if ( self::$bootable === false ) {
 			return;
 		}
 
-		$backtrace = \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS, 1 );
-		$filename  = $backtrace[0]['file'];
+		if ( $filename === null ) {
+			$backtrace = \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS, 1 );
+			$filename  = $backtrace[0]['file'];
+		}
 
 		$extensions = new ExtensionsSet(
 			new BuiltinExtension(),
