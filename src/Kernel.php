@@ -86,12 +86,14 @@ final class Kernel {
 
 	private function initialize_container( Plugin $plugin ): Container {
 		$original_builder = new DiBuilder();
-		$original_builder->enableCompilation(
-			$this->get_cache_path(),
-			$this->get_container_name( $plugin )
-		);
 
+		// If there's a cache file, use it as we are in production environment.
+		// Otherwise, build the container from scratch and use live version, without compilation.
 		if ( file_exists( $this->get_cache_path( $this->get_container_name( $plugin ) . '.php' ) ) ) {
+			$original_builder->enableCompilation(
+				$this->get_cache_path(),
+				$this->get_container_name( $plugin )
+			);
 			return $original_builder->build();
 		}
 
