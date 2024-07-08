@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\Binding;
 
+use WPDesk\Init\Binding\Definition\UnknownDefinition;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
 use WPDesk\Init\Tests\TestCase;
@@ -34,21 +35,17 @@ class CompositeBindingLoaderTest extends TestCase {
 		);
 		$this->assertEquals(
 			[
-				'hook' => [
-					'bind1',
-					'bind2',
-				],
-				'hook2' => [
-					'bind3',
-				]
+				new UnknownDefinition('bind1', 'hook'),
+				new UnknownDefinition('bind2', 'hook'),
+				new UnknownDefinition('bind3', 'hook2'),
 			],
-			iterator_to_array($a->load())
+			iterator_to_array($a->load(), false)
 		);
 	}
 
 	public function test_loading_unstructured_bindings(): void {
 		$a = new CompositeBindingLoader(
-			new ArrayDefinitions(	[
+			new ArrayDefinitions([
 				'bind1',
 			]),
 			new ArrayDefinitions([
@@ -58,16 +55,13 @@ class CompositeBindingLoaderTest extends TestCase {
 				'hook' => 'bind3',
 			])
 		);
-		$actual = [];
-		foreach ($a->load() as $k => $v) {
-			$actual[$k] = array_merge( $actual[$k] ?? [], (array) $v );
-		}
 		$this->assertEquals(
 			[
-				'' => ['bind1', 'bind2'],
-				'hook' => ['bind3'],
+				new UnknownDefinition('bind1', null),
+				new UnknownDefinition('bind2', null),
+				new UnknownDefinition('bind3', 'hook'),
 			],
-			$actual
+			iterator_to_array($a->load(), false)
 		);
 
 		$a = new CompositeBindingLoader(
@@ -81,17 +75,13 @@ class CompositeBindingLoaderTest extends TestCase {
 			'hook' => ['bind3'],
 			]),
 		);
-		$actual = [];
-		foreach ($a->load() as $k => $v) {
-			$actual[$k] = array_merge( $actual[$k] ?? [], (array) $v );
-		}
 		$this->assertEquals(
 			[
-				'' => ['bind1'],
-				'not_a_hook' => ['bind2'],
-				'hook' => ['bind3'],
+				new UnknownDefinition('bind1', null),
+				new UnknownDefinition('bind2', 'not_a_hook'),
+				new UnknownDefinition('bind3', 'hook'),
 			],
-			$actual
+			iterator_to_array($a->load(), false)
 		);
 	}
 }

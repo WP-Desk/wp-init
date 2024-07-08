@@ -3,10 +3,11 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\Binding;
 
+use WPDesk\Init\Binding\Definition\UnknownDefinition;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Tests\TestCase;
 
-class ArrayBindingLoaderTest extends TestCase {
+class ArrayDefinitionsTest extends TestCase {
 
 	public function test_loading_empty_bindings(): void {
 		$a = new ArrayDefinitions([]);
@@ -25,13 +26,9 @@ class ArrayBindingLoaderTest extends TestCase {
 		]);
 		$this->assertEquals(
 			[
-				'hook' => [
-					'bind1',
-					'bind2',
-				],
-				'hook2' => [
-					'bind3',
-				]
+				new UnknownDefinition('bind1', 'hook'),
+				new UnknownDefinition('bind2', 'hook'),
+				new UnknownDefinition('bind3', 'hook2'),
 			],
 			iterator_to_array($a->load())
 		);
@@ -45,8 +42,9 @@ class ArrayBindingLoaderTest extends TestCase {
 		]);
 		$this->assertEquals(
 			[
-				'' => ['bind1', 'bind2'],
-				'hook' => ['bind3'],
+				new UnknownDefinition('bind1', null),
+				new UnknownDefinition('bind2', null),
+				new UnknownDefinition('bind3', 'hook'),
 			],
 			iterator_to_array($a->load())
 		);
@@ -58,11 +56,12 @@ class ArrayBindingLoaderTest extends TestCase {
 		]);
 		$this->assertEquals(
 			[
-				'' => ['bind1'],
-				'not_a_hook' => ['bind2'],
-				'hook' => ['bind3'],
+				new UnknownDefinition('bind1', null),
+				new UnknownDefinition('bind2', 'not_a_hook'),
+				new UnknownDefinition('bind3', 'hook'),
 			],
 			iterator_to_array($a->load())
 		);
 	}
+
 }
