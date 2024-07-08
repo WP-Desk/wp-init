@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace WPDesk\Init\Binding\Binder;
 
 use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Binder;
+use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\CallableDefinition;
 
-class CallableBinder implements Binder {
+class CallableBinder implements ComposableBinder {
 
 	/** @var ContainerInterface */
 	private $container;
@@ -23,13 +23,11 @@ class CallableBinder implements Binder {
 	}
 
 	public function bind( Definition $def ): void {
-		if ( $def instanceof CallableDefinition ) {
-			$ref        = new \ReflectionFunction( $def->value() );
-			$parameters = [];
-			foreach ( $ref->getParameters() as $ref_param ) {
-				$parameters[] = $this->container->get( $ref_param->getType()->getName() );
-			}
-			$ref->invokeArgs( $parameters );
+		$ref        = new \ReflectionFunction( $def->value() );
+		$parameters = [];
+		foreach ( $ref->getParameters() as $ref_param ) {
+		$parameters[] = $this->container->get( $ref_param->getType()->getName() );
 		}
+		$ref->invokeArgs( $parameters );
 	}
 }

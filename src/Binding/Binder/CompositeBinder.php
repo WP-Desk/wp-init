@@ -21,16 +21,6 @@ final class CompositeBinder implements Binder {
 		$this->binders[] = $binder;
 	}
 
-	public function can_bind( Definition $def ): bool {
-		foreach ( $this->binders as $binder ) {
-			if ( $binder->can_bind( $def ) ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	public function bind( Definition $def ): void {
 		foreach ( $this->binders as $binder ) {
 			if ( $binder->can_bind( $def ) ) {

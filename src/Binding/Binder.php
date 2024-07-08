@@ -6,7 +6,5 @@ namespace WPDesk\Init\Binding;
 
 interface Binder {
 
-	public function can_bind( Definition $def ): bool;
-
 	public function bind( Definition $def ): void;
 }

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace WPDesk\Init\Binding\Binder;
 
 use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Binder;
+use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
 
-class HookableBinder implements Binder {
+class HookableBinder implements ComposableBinder {
 
 	/** @var ContainerInterface */
 	private $container;
@@ -23,8 +23,6 @@ class HookableBinder implements Binder {
 	}
 
 	public function bind( Definition $def ): void {
-		if ( $def instanceof HookableDefinition ) {
-			$this->container->get( $def->value() )->hooks();
-		}
+		$this->container->get( $def->value() )->hooks();
 	}
 }

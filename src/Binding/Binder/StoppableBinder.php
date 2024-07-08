@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace WPDesk\Init\Binding\Binder;
 
 use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Binder;
+use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\StoppableBinder as Stop;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
 
-class StoppableBinder implements Binder {
+class StoppableBinder implements ComposableBinder {
 
 	/** @var ContainerInterface */
 	private $container;
