@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\StoppableBinder as Stop;
 use WPDesk\Init\Binding\Definition;
+use WPDesk\Init\Binding\Binder as BinderInstance;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
 
 class StoppableBinder implements ComposableBinder {
@@ -20,7 +21,7 @@ class StoppableBinder implements ComposableBinder {
 
 	private $should_stop = false;
 
-	public function __construct( Binder $b, ContainerInterface $c ) {
+	public function __construct( BinderInstance $b, ContainerInterface $c ) {
 		$this->binder    = $b;
 		$this->container = $c;
 	}

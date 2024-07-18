@@ -108,9 +108,11 @@ final class Kernel {
 
 	private function prepare_driver( ContainerInterface $container ): HookDriver {
 		$loader = new CompositeBindingLoader();
-		foreach ( $this->extensions->bindings( $container ) as $bindings ) {
-			$loader->add( $bindings );
-		}
+        foreach ($this->extensions as $extension) {
+            foreach ($extension->bindings($container) as $bindings) {
+                $loader->add($bindings);
+            }
+        }
 
 		$driver = new GenericDriver(
 			$loader,

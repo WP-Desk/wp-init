@@ -1,6 +1,5 @@
 <?php
-
-if ( ! ( PHP_VERSION_ID >= 72000 ) ) {
+if ( ! ( PHP_VERSION_ID >= 70200 ) ) {
 	add_action(
 		'admin_notices',
 		function () {

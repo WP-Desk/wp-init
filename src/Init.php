@@ -11,6 +11,7 @@ use WPDesk\Init\Extension\ConfigExtension;
 use WPDesk\Init\Extension\ExtensionsSet;
 use WPDesk\Init\Util\PhpFileLoader;
 use WPDesk\Init\Configuration\Configuration;
+use WPDesk\Init\Extension\ConditionalExtension;
 
 final class Init {
 
@@ -51,7 +52,7 @@ final class Init {
 	/**
 	 * @param string|null $filename Filename of the booted plugin. May be null, if called from plugin's main file.
 	 */
-	public function boot( string? $filename = null ) {
+	public function boot( ?string $filename = null ) {
 		if ( self::$bootable === false ) {
 			return;
 		}
