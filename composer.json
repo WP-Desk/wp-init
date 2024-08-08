@@ -44,7 +44,7 @@
   "require-dev": {
     "brain/monkey": "^2.6",
     "phpunit/phpunit": "^8 || ^9",
-    "symfony/filesystem": "^6.2",
+    "symfony/filesystem": "^5.4 || ^6.2",
     "wpdesk/phpstan-rules": "^1.1",
     "wpdesk/wp-basic-requirements": "^3",
     "wpdesk/wp-builder": "^2.0",
