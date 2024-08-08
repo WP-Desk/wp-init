@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+
+use WPDesk\Init\Util\PhpFileDumper;
+
+include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
+
+$filename = $argv[1] ?? null;
+
+$parser = new \WPDesk\Init\Plugin\DefaultHeaderParser();
+
+$data = $parser->parse( $filename );
+
+$dumper = new PhpFileDumper();
+$dumper->dump( $parser->parse( $filename ), $argv[2] );
+
+//echo "Compile static plugin resources.";

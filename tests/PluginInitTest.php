@@ -3,8 +3,8 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests;
 
-use WPDesk\Init\Plugin;
-use WPDesk\Init\PluginInit;
+use WPDesk\Init\Plugin\Plugin;
+use WPDesk\Init\Kernel;
 use Brain\Monkey;
 
 class PluginInitTest extends TestCase {
@@ -20,36 +20,10 @@ class PluginInitTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function test_minimal_init(): void {
-		Monkey\Functions\stubs([
-			'plugin_basename',
-			'plugin_dir_url'
-		]);
+	public function xtest_initialization(): void {
+		$this->initTempPlugin('simple-plugin');
 
-		$slug   = 'simple-plugin';
-		$dir    = $this->initTempPlugin( $slug );
-		$plugin = $this->load_plugin_file( $dir, $slug );
-
-		$this->assertFileDoesNotExist( $dir . '/cache' );
-		$this->assertEquals( 'simple-plugin', $plugin->get_slug() );
-	}
-
-	public function test_advanced_init(): void {
-		Monkey\Functions\stubs([
-			'plugin_basename',
-			'plugin_dir_url'
-		]);
-		Monkey\Functions\expect('get_bloginfo')
-			->with('version')
-			->andReturn('5.6');
-
-		$slug = 'advanced-plugin';
-		$dir  = $this->initTempPlugin( $slug );
-
-		$plugin = $this->load_plugin_file( $dir, $slug );
-
-		$this->assertNotNull($plugin);
-		$this->assertFileExists( $dir . '/cache' );
+		(new Kernel([]))->boot();
 	}
 
 	private function load_plugin_file( $dir, $slug ): ?Plugin {

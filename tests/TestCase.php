@@ -6,11 +6,9 @@ namespace WPDesk\Init\Tests;
 use Symfony\Component\Filesystem\Filesystem;
 
 class TestCase extends \PHPUnit\Framework\TestCase {
-	/** @var string|null */
 	private ?string $prevCwd = null;
 
-	/** @var array */
-	private array $tempPluginDirs = [];
+	protected array $tempPluginDirs = [];
 
 	public static function getUniqueTmpDirectory( string $suffix = '' ): string {
 		$attempts = 5;
@@ -40,6 +38,13 @@ class TestCase extends \PHPUnit\Framework\TestCase {
 		chdir( $dir );
 
 		return $dir;
+	}
+
+	public function createTempFile( string $name, string $content ): string {
+		$dir = self::getUniqueTmpDirectory();
+		$fs  = new Filesystem();
+		$fs->dumpFile( $dir . '/' . $name, $content );
+		return $dir . '/' . $name;
 	}
 
 	protected function tearDown(): void {
