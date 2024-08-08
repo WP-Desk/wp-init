@@ -3,6 +3,10 @@ variables:
 
 include: 'https://gitlab.wpdesk.dev/wpdesk/gitlab-ci/raw/master/gitlab-ci-1.2.yml'
 
+unit test lastest:
+  script:
+    - composer test
+
 unit test lastest coverage:
   script:
     - composer test
