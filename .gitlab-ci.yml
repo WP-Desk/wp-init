@@ -2,3 +2,7 @@ variables:
   IS_LIBRARY: 1
 
 include: 'https://gitlab.wpdesk.dev/wpdesk/gitlab-ci/raw/master/gitlab-ci-1.2.yml'
+
+unit test lastest coverage:
+  script:
+    - composer test
