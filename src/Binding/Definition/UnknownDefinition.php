@@ -17,7 +17,7 @@ class UnknownDefinition implements Definition {
 
 	public function __construct(
 		$value,
-		?string $hook = null,
+		?string $hook = null
 	) {
 		$this->value = $value;
 		$this->hook     = $hook;
