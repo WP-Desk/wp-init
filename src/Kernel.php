@@ -7,10 +7,14 @@ use DI\Container;
 use DI\ContainerBuilder as DiBuilder;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Binder\CallableBinder;
+use WPDesk\Init\Binding\Binder\CollectionBinder;
 use WPDesk\Init\Binding\Binder\CompositeBinder;
 use WPDesk\Init\Binding\Binder\HookableBinder;
 use WPDesk\Init\Binding\Binder\StoppableBinder;
+use WPDesk\Init\Binding\Loader\ClusteredLoader;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
+use WPDesk\Init\Binding\Loader\DebugBindingLoader;
+use WPDesk\Init\Binding\Loader\OrderedBindingLoader;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Extension\ExtensionsSet;
@@ -99,6 +103,10 @@ final class Kernel {
 
 		$builder = new ContainerBuilder( $original_builder );
 
+		if ( ! function_exists('WPDesk\Init\DI\create') ) {
+			require __DIR__ . '/di-functions.php';
+		}
+
 		foreach ( $this->extensions as $extension ) {
 			$extension->build( $builder, $plugin, $this->config );
 		}
@@ -112,6 +120,14 @@ final class Kernel {
 			$loader->add( $extension->bindings( $container ) );
 		}
 
+		$loader = new OrderedBindingLoader(
+			new ClusteredLoader( $loader )
+		);
+
+		if ( $this->config->get('debug', false) ) {
+			$loader = new DebugBindingLoader( $loader );
+		}
+
 		$driver = new GenericDriver(
 			$loader,
 			new StoppableBinder(
@@ -123,7 +139,7 @@ final class Kernel {
 			)
 		);
 
-		if ( class_exists( \WPDesk_Plugin_Info::class ) ) {
+		if ( $this->config->get('legacy', false) ) {
 			$driver = new CompositeDriver(
 				$driver,
 				new LegacyDriver( $container )

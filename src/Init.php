@@ -68,7 +68,7 @@ final class Init {
 			new ConditionalExtension()
 		);
 
-		if ( class_exists( \WPDesk_Plugin_Info::class ) ) {
+		if ( $this->config->get('legacy', false) && class_exists( \WPDesk_Plugin_Info::class ) ) {
 			$extensions->add( new LegacyExtension() );
 		}
 
