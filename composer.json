@@ -34,9 +34,9 @@
     ]
   },
   "require": {
-    "php": ">=7.2 | ^8",
+    "php": ">=7.4 | ^8",
     "php-di/php-di": "^6 || ^7",
-	"psr/container": "~1.0.0 || ^2"
+    "psr/container": "^1 || ^2"
   },
   "require-dev": {
     "brain/monkey": "^2.6",
@@ -58,8 +58,14 @@
   },
   "config": {
     "allow-plugins": {
-			"phpstan/extension-installer": true,
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
+      "phpstan/extension-installer": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "repositories": {
+    "wpdesk": {
+      "type": "composer",
+      "url": "https://gitlab.wpdesk.dev/api/v4/group/wpdesk/-/packages/composer/"
+    }
   }
 }
