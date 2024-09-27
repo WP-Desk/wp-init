@@ -103,7 +103,7 @@ final class Kernel {
 
 		$builder = new ContainerBuilder( $original_builder );
 
-		if ( ! function_exists('WPDesk\Init\DI\create') ) {
+		if ( ! function_exists( 'WPDesk\Init\DI\create' ) ) {
 			require __DIR__ . '/di-functions.php';
 		}
 
