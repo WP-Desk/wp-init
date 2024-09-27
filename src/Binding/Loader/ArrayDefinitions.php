@@ -16,7 +16,7 @@ class ArrayDefinitions implements BindingDefinitions {
 	/** @var DefinitionFactory */
 	private $factory;
 
-	public function __construct( array $bindings, ?DefinitionFactory $factory = null) {
+	public function __construct( array $bindings, ?DefinitionFactory $factory = null ) {
 		$this->bindings = $bindings;
 		$this->factory  = $factory ?? new DefinitionFactory();
 	}
@@ -28,8 +28,18 @@ class ArrayDefinitions implements BindingDefinitions {
 	private function normalize( iterable $bindings ): iterable {
 		foreach ( $bindings as $key => $value ) {
 			if ( is_array( $value ) ) {
-				foreach ( $value as $unit ) {
-					yield $this->create( $unit, $key );
+				if ( isset( $value['handler'] ) ) {
+					// Single item with handler
+					yield $this->create( $value['handler'], $key, $value );
+				} else {
+					// Multiple items
+					foreach ( $value as $unit ) {
+						if ( is_array( $unit ) && isset( $unit['handler'] ) ) {
+							yield $this->create( $unit['handler'], $key, $unit );
+						} else {
+							yield $this->create( $unit, $key );
+						}
+					}
 				}
 			} else {
 				yield $this->create( $value, $key );
@@ -38,10 +48,10 @@ class ArrayDefinitions implements BindingDefinitions {
 	}
 
 	/**
-     * @param mixed $value
+	 * @param mixed $value
 	 * @param int|string $hook
 	 */
-	private function create( $value, $hook ): Definition {
-		return $this->factory->create( $value, is_int( $hook ) ? null : $hook );
+	private function create( $value, $hook, array $options = [] ): Definition {
+		return $this->factory->create( $value, is_int( $hook ) ? null : $hook, $options );
 	}
 }

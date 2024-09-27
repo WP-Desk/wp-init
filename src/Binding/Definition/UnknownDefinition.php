@@ -15,12 +15,17 @@ class UnknownDefinition implements Definition {
 	/** @var mixed */
 	private $value;
 
+	/** @var array<string, mixed> */
+	private array $options;
+
 	public function __construct(
 		$value,
-		?string $hook = null
+		?string $hook = null,
+		array $options = []
 	) {
-		$this->value = $value;
-		$this->hook     = $hook;
+		$this->value   = $value;
+		$this->hook    = $hook;
+		$this->options = $options;
 	}
 
 	public function hook(): ?string {
@@ -29,5 +34,9 @@ class UnknownDefinition implements Definition {
 
 	public function value() {
 		return $this->value;
+	}
+
+	public function option( string $name ) {
+		return $this->options[ $name ] ?? null;
 	}
 }

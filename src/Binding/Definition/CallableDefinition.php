@@ -15,12 +15,17 @@ class CallableDefinition implements Definition {
 	/** @var callable */
 	private $callable;
 
+	/** @var array<string, mixed> */
+	private array $options;
+
 	public function __construct(
 		callable $callable,
 		?string $hook = null,
+		array $options = []
 	) {
 		$this->callable = $callable;
 		$this->hook     = $hook;
+		$this->options  = $options;
 	}
 
 	public function hook(): ?string {
@@ -29,5 +34,9 @@ class CallableDefinition implements Definition {
 
 	public function value() {
 		return $this->callable;
+	}
+
+	public function option( string $name ) {
+		return $this->options[ $name ] ?? null;
 	}
 }
