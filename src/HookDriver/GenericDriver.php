@@ -20,17 +20,23 @@ class GenericDriver implements HookDriver {
 	}
 
 	public function register_hooks(): void {
-		foreach ( $this->definitions->load() as $definition ) {
-			if ( $definition->hook() ) {
-				add_action(
-					$definition->hook(),
-					function () use ( $definition ) {
+		// Load has to be deffered until plugins_loaded because classes may implement or extend interfaces/classes which doesn't exist yet.
+		add_action(
+			'plugins_loaded',
+			function () {
+				foreach ( $this->definitions->load() as $definition ) {
+					if ( $definition->hook() === null ) {
 						$this->binder->bind( $definition );
+						continue;
 					}
-				);
-			} else {
-				$this->binder->bind( $definition );
-			}
-		}
+
+					add_action(
+						$definition->hook(),
+						fn () => $this->binder->bind( $definition )
+					);
+				}
+			},
+			-50
+		);
 	}
 }
