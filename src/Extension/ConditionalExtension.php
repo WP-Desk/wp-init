@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace WPDesk\Init\Extension;
 
 use DI\Definition\Helper\AutowireDefinitionHelper;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Logger;
-use Monolog\Processor\PsrLogMessageProcessor;
-use Monolog\Processor\UidProcessor;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
@@ -19,7 +15,7 @@ use WPDesk\Init\Extension\CommonBinding\RequirementsCheck;
 use WPDesk\Init\Extension\CommonBinding\WPDeskLicenseBridge;
 use WPDesk\Init\Extension\CommonBinding\WPDeskTrackerBridge;
 use WPDesk\Init\Plugin\Plugin;
-use WPDesk\Logger\WC\WooCommerceHandler;
+use WPDesk\Logger\SimpleLoggerFactory;
 
 class ConditionalExtension implements Extension {
 
@@ -58,29 +54,17 @@ class ConditionalExtension implements Extension {
 			$definitions[ WPDeskTrackerBridge::class ] = new AutowireDefinitionHelper();
 		}
 
-		if ( class_exists( \WPDesk\Logger\WC\WooCommerceHandler::class ) ) {
-			$definitions[ LoggerInterface::class ] = static function () use ( $plugin ) {
-				$logger = new Logger(
-					$plugin->get_slug(),
-					[],
-					[ new PsrLogMessageProcessor( null, true ), new UidProcessor() ]
-				);
+		if ( class_exists( \WPDesk\Logger\SimpleLoggerFactory::class ) ) {
+			$definitions[ LoggerInterface::class ] = static function ( ContainerInterface $c ) {
+				$p = $c->get( Plugin::class );
 
-				$attach_handler = function () use ( $logger, $plugin ) {
-					$handler = new WooCommerceHandler( wc_get_logger(), $plugin->get_slug() );
-					$handler->setFormatter(
-						new LineFormatter( '%channel%.%level_name% [%extra.uid%]: %message% %context% %extra%' )
-					);
-					$logger->pushHandler( $handler );
-				};
-
-				if ( \function_exists( 'wc_get_logger' ) ) {
-					$attach_handler();
-				} else {
-					\add_action( 'woocommerce_init', $attach_handler );
-				}
-
-				return $logger;
+				return ( new SimpleLoggerFactory(
+					$p->get_slug(),
+					[
+						'level'        => $c->has( 'logger.level' ) ? $c->get( 'logger.level' ) : 'debug',
+						'action_level' => $c->has( 'logger.action_level' ) ? $c->get( 'logger.action_level' ) : null,
+					]
+				) )->getLogger();
 			};
 		}
 
