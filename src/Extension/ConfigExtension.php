@@ -29,7 +29,7 @@ class ConfigExtension implements Extension {
 
 	public function build( ContainerBuilder $builder, Plugin $plugin, ReadableConfig $config ): void {
 		$services = array_map(
-			fn( $service ): string => (string) ( new Path( $service ) )->absolute( $plugin->get_path() ),
+			fn ( string $service ) => (string) ( new Path( $service ) )->absolute( $plugin->get_path() ),
 			(array) $config->get( 'services', [] )
 		);
 

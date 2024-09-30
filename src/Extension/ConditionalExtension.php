@@ -9,6 +9,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
+use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Configuration\ReadableConfig;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Extension\CommonBinding\RequirementsCheck;
@@ -20,6 +21,7 @@ use WPDesk\Logger\SimpleLoggerFactory;
 class ConditionalExtension implements Extension {
 
 	public function bindings( ContainerInterface $c ): BindingDefinitions {
+		$config   = $c->get( Configuration::class );
 		$bindings = [];
 
 		if ( class_exists( \WPDesk_Basic_Requirement_Checker::class ) ) {
@@ -34,7 +36,7 @@ class ConditionalExtension implements Extension {
 		}
 
 		if ( class_exists( \WPDesk_Tracker::class ) ) {
-			$bindings[] = WPDeskTrackerBridge::class;
+			$bindings['plugins_loaded'] = WPDeskTrackerBridge::class;
 		}
 
 		return new ArrayDefinitions( $bindings );
