@@ -36,8 +36,8 @@ class LegacyExtension implements Extension {
 
 		$plugin_info->set_class_name( $config->get( 'plugin_class_name' ) );
 
-		$plugin_info->set_product_id( $config->get( 'product_id' ) );
-		$plugin_info->set_plugin_shops( $config->get( 'plugin_shops' ) );
+		$plugin_info->set_product_id( $config->get( 'product_id', '' ) );
+		$plugin_info->set_plugin_shops( $config->get( 'shops', [] ) );
 
 		return $plugin_info;
 	}
