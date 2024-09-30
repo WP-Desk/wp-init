@@ -1,42 +1,56 @@
 <?php
+declare(strict_types=1);
 
 namespace WPDesk\Init\Extension\CommonBinding;
 
+use Psr\Log\LoggerInterface;
 use WPDesk\Init\Binding\Hookable;
 use WPDesk\Init\Plugin\Plugin;
-use WPDesk\License\PluginRegistrator;
+use WPDesk\License\LicenseServer\PluginRegistrator;
+use WPDesk\License\LicenseServer\PluginVersionInfo;
 
 class WPDeskLicenseBridge implements Hookable {
 
-	/** @var \WPDesk_Plugin_Info */
-	private $plugin_info;
+	private Plugin $plugin;
 
-	private $registrator;
+	private string $product_id;
 
-	public function __construct( \WPDesk_Plugin_Info $plugin_info ) {
-		$this->plugin_info = $plugin_info;
+	/** @var string[] */
+	private array $shops;
+
+	private LoggerInterface $logger;
+
+	public function __construct(
+		Plugin $plugin,
+		string $product_id,
+		array $shops,
+		LoggerInterface $logger
+	) {
+		$this->plugin     = $plugin;
+		$this->product_id = $product_id;
+		$this->shops      = $shops;
+		$this->logger     = $logger;
 	}
 
 	public function hooks(): void {
-		$this->registrator = $this->register_plugin();
-		// add_action('plugins_loaded', $this);
+		add_action( 'plugins_loaded', $this, -50 );
 	}
 
-	public function __invoke(): void {
-		$is_plugin_subscription_active = $this->registrator instanceof PluginRegistrator && $this->registrator->is_active();
-		if ( $this->plugin instanceof ActivationAware && $is_plugin_subscription_active ) {
-			$this->plugin->set_active();
+	public function __invoke() {
+		// Backward compatibility with wp-builder hook.
+		if ( apply_filters( 'wpdesk_can_register_plugin', true, $this->plugin ) === false ) {
+			return;
 		}
 
+		$plugin_info = new PluginVersionInfo(
+			$this->plugin->get_name(),
+			$this->plugin->get_version(),
+			$this->product_id,
+			$this->plugin->get_slug(),
+			$this->plugin->get_basename(),
+			$this->shops
+		);
+		$registrator = new PluginRegistrator( $plugin_info );
+		$registrator->initialize_license_manager();
 	}
-
-	private function register_plugin() {
-		if ( apply_filters( 'wpdesk_can_register_plugin', true, $this->plugin_info ) ) {
-			$registrator = new PluginRegistrator( $this->plugin_info );
-			$registrator->initialize_license_manager();
-
-			return $registrator;
-		}
-	}
-
 }

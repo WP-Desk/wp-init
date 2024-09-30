@@ -30,7 +30,7 @@ class ConditionalExtension implements Extension {
 			$bindings[] = RequirementsCheck::class;
 		}
 
-		if ( class_exists( \WPDesk\License\PluginRegistrator::class ) ) {
+		if ( class_exists( \WPDesk\License\LicenseServer\PluginRegistrator::class ) ) {
 			$bindings[] = WPDeskLicenseBridge::class;
 		}
 
@@ -48,8 +48,10 @@ class ConditionalExtension implements Extension {
 			$definitions[ RequirementsCheck::class ] = new AutowireDefinitionHelper();
 		}
 
-		if ( class_exists( \WPDesk\License\PluginRegistrator::class ) ) {
-			$definitions[ WPDeskLicenseBridge::class ] = new AutowireDefinitionHelper();
+		if ( class_exists( \WPDesk\License\LicenseServer\PluginRegistrator::class ) ) {
+			$definitions[ WPDeskLicenseBridge::class ] = ( new AutowireDefinitionHelper() )
+				->constructorParameter( 'proudct_id', $config->get( 'product_id' ) )
+				->constructorParameter( 'shops', (array) $config->get( 'shops', [] ) );
 		}
 
 		if ( class_exists( \WPDesk_Tracker::class ) ) {
