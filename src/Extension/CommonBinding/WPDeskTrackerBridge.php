@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use WPDesk\Init\Binding\Hookable;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Plugin\Plugin;
+use WPDesk\Tracker\OptInOptOut;
 
 class WPDeskTrackerBridge implements Hookable {
 
