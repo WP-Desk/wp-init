@@ -15,7 +15,7 @@ class CustomOrdersTableCompatibility implements Hookable {
 	}
 
 	public function hooks(): void {
-		add_action('before_woocommerce_init', $this);
+		add_action( 'before_woocommerce_init', $this );
 	}
 
 	public function __invoke(): void {
@@ -27,6 +27,5 @@ class CustomOrdersTableCompatibility implements Hookable {
 				true
 			);
 		}
-
 	}
 }

@@ -13,5 +13,5 @@ interface Extension {
 
 	public function build( ContainerBuilder $builder, Plugin $plugin, ReadableConfig $config ): void;
 
-	public function bindings(ContainerInterface $c): BindingDefinitions;
+	public function bindings( ContainerInterface $c ): BindingDefinitions;
 }

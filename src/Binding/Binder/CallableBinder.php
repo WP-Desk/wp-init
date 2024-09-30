@@ -26,7 +26,7 @@ class CallableBinder implements ComposableBinder {
 		$ref        = new \ReflectionFunction( $def->value() );
 		$parameters = [];
 		foreach ( $ref->getParameters() as $ref_param ) {
-		$parameters[] = $this->container->get( $ref_param->getType()->getName() );
+			$parameters[] = $this->container->get( $ref_param->getType()->getName() );
 		}
 		$ref->invokeArgs( $parameters );
 	}

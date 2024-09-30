@@ -24,7 +24,7 @@ final class ObservableBinder implements ComposableBinder {
 
 	public function bind( Definition $def ): void {
 		$this->binder->bind( $def );
-		$this->binds_count++;
+		++$this->binds_count;
 	}
 
 	public function can_bind( Definition $def ): bool {

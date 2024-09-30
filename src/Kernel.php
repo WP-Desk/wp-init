@@ -134,7 +134,7 @@ final class Kernel {
 			new ClusteredLoader( $loader )
 		);
 
-		if ( $this->config->get('debug', false) ) {
+		if ( $this->config->get( 'debug', false ) ) {
 			$loader = new DebugBindingLoader( $loader );
 		}
 
@@ -149,7 +149,7 @@ final class Kernel {
 			)
 		);
 
-		if ( $this->config->get('legacy', false) ) {
+		if ( $this->config->get( 'legacy', false ) ) {
 			$driver = new CompositeDriver(
 				$driver,
 				new LegacyDriver( $container )
