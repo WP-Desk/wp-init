@@ -22,6 +22,7 @@ use WPDesk\Init\HookDriver\CompositeDriver;
 use WPDesk\Init\HookDriver\GenericDriver;
 use WPDesk\Init\HookDriver\HookDriver;
 use WPDesk\Init\HookDriver\LegacyDriver;
+use WPDesk\Init\Util\PhpFileDumper;
 use WPDesk\Init\Util\PhpFileLoader;
 use WPDesk\Init\Plugin\Header;
 use WPDesk\Init\Util\Path;
@@ -46,6 +47,8 @@ final class Kernel {
 	/** @var ExtensionsSet */
 	private $extensions;
 
+	private PhpFileDumper $dumper;
+
 	public function __construct(
 		string $filename,
 		Configuration $config,
@@ -56,6 +59,7 @@ final class Kernel {
 		$this->extensions = $extensions;
 		$this->loader     = new PhpFileLoader();
 		$this->parser     = new DefaultHeaderParser();
+		$this->dumper     = new PhpFileDumper();
 	}
 
 	public function boot(): void {
@@ -63,10 +67,15 @@ final class Kernel {
 		try {
 			$plugin_data = $this->loader->load( $cache_path );
 		} catch ( \Exception $e ) {
-			// If cache not found, load data from memory.
-			// Avoid writing files on host environment.
-			// Generate cache with command instead.
-			$plugin_data = $this->parser->parse( $this->filename );
+			try {
+				$this->dumper->dump(
+					$this->parser->parse( $this->filename ),
+					$cache_path
+				);
+				$plugin_data = $this->loader->load( $cache_path );
+			} catch ( \Exception $e ) {
+				$plugin_data = $this->parser->parse( $this->filename );
+			}
 		}
 
 		$plugin = new Plugin( $this->filename, new Header( $plugin_data ) );
@@ -93,12 +102,13 @@ final class Kernel {
 
 		// If there's a cache file, use it as we are in production environment.
 		// Otherwise, build the container from scratch and use live version, without compilation.
-		if ( file_exists( $this->get_cache_path( $this->get_container_name( $plugin ) . '.php' ) ) ) {
+		//
+		// On failure, restart container compilation, without cache.
+		if ( $this->config->get( 'debug', false ) === false ) {
 			$original_builder->enableCompilation(
 				$this->get_cache_path(),
 				$this->get_container_name( $plugin )
 			);
-			return $original_builder->build();
 		}
 
 		$builder = new ContainerBuilder( $original_builder );
