@@ -23,7 +23,10 @@ class ConditionalExtension implements Extension {
 		$bindings = [];
 
 		if ( class_exists( \WPDesk_Basic_Requirement_Checker::class ) ) {
-			$bindings[] = RequirementsCheck::class;
+			$bindings[] = [
+				'priority' => -10,
+				'handler'  => RequirementsCheck::class,
+			];
 		}
 
 		if ( class_exists( \WPDesk\License\LicenseServer\PluginRegistrator::class ) ) {
