@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace WPDesk\Init\Binding\Binder;
 
 use WPDesk\Init\Binding\Binder;
+use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
 
 final class CompositeBinder implements Binder {
 
-	/** @var Binder[] */
+	/** @var ComposableBinder[] */
 	private $binders;
 
-	public function __construct( Binder ...$binders ) {
+	public function __construct( ComposableBinder ...$binders ) {
 		$this->binders = $binders;
 	}
 
-	public function add( Binder $binder ): void {
+	public function add( ComposableBinder $binder ): void {
 		$this->binders[] = $binder;
 	}
 
