@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace WPDesk\Init\Binding\Definition;
 
+use IteratorAggregate;
+use Traversable;
 use WPDesk\Init\Binding\Definition;
 
-/** @implements Definition<mixed> */
-class DefinitionCollection implements Definition {
+/**
+ * @implements Definition<mixed>
+ * @implements IteratorAggregate<mixed,Definition<mixed>>
+ */
+class DefinitionCollection implements Definition, \IteratorAggregate {
 
-	/** @var ?string */
-	private $hook;
+	private ?string $hook;
 
 	/** @var Definition[] */
-	private $defs;
+	private array $defs;
 
 	/** @var array<string, mixed> */
 	private array $options;
@@ -40,5 +44,9 @@ class DefinitionCollection implements Definition {
 
 	public function option( string $name ) {
 		return $this->options[ $name ] ?? null;
+	}
+
+	public function getIterator(): Traversable {
+		yield from $this->defs;
 	}
 }

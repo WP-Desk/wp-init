@@ -22,6 +22,13 @@ final class CompositeBinder implements Binder {
 	}
 
 	public function bind( Definition $def ): void {
+		if ( is_iterable( $def ) ) {
+			foreach ( $def as $d ) {
+				$this->bind( $d );
+			}
+			return;
+		}
+
 		foreach ( $this->binders as $binder ) {
 			if ( $binder->can_bind( $def ) ) {
 				$binder->bind( $def );
