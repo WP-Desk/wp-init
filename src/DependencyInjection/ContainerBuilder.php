@@ -9,8 +9,7 @@ use DI\Definition\Source\DefinitionSource;
 
 final class ContainerBuilder {
 
-	/** @var DiBuilder */
-	private $original_builder;
+	private DiBuilder $original_builder;
 
 	public function __construct( DiBuilder $original_builder ) {
 		$this->original_builder = $original_builder;

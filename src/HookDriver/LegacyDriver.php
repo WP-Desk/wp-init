@@ -8,8 +8,7 @@ use WPDesk\Init\HookDriver\Legacy\HooksRegistry;
 
 final class LegacyDriver implements HookDriver {
 
-	/** @var ContainerInterface */
-	private $container;
+	private ContainerInterface $container;
 
 	public function __construct( ContainerInterface $container ) {
 		if ( ! class_exists( \WPDesk_Plugin_Info::class ) ) {

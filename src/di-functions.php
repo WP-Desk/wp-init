@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.ValidVariableName
 /**
  * This is a vendored set of php-di/php-di helper functions. We place it directly in our library to improve experience when using DI along with code scoping, which defy composer's file autoloading.
  *

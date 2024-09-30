@@ -9,8 +9,7 @@ use WPDesk\Init\Binding\Definition;
 /** @implements Definition<mixed> */
 class UnknownDefinition implements Definition {
 
-	/** @var ?string */
-	private $hook;
+	private ?string $hook;
 
 	/** @var mixed */
 	private $value;

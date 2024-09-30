@@ -38,7 +38,7 @@ class DefinitionCollection implements Definition, \IteratorAggregate {
 		yield from $this->defs;
 	}
 
-	public function add( Definition $def ) {
+	public function add( Definition $def ): void {
 		$this->defs[] = $def;
 	}
 

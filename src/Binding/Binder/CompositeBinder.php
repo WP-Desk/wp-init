@@ -12,7 +12,7 @@ use WPDesk\Init\Binding\Definition\HookableDefinition;
 final class CompositeBinder implements Binder {
 
 	/** @var ComposableBinder[] */
-	private $binders;
+	private array $binders;
 
 	public function __construct( ComposableBinder ...$binders ) {
 		$this->binders = $binders;

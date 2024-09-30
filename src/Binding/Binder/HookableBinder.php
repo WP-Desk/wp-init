@@ -11,8 +11,7 @@ use WPDesk\Init\Binding\Definition\HookableDefinition;
 
 class HookableBinder implements ComposableBinder {
 
-	/** @var ContainerInterface */
-	private $container;
+	private ContainerInterface $container;
 
 	public function __construct( ContainerInterface $c ) {
 		$this->container = $c;

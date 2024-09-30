@@ -22,7 +22,7 @@ final class DebugBindingLoader implements BindingDefinitions {
 	public function load(): iterable {
 		foreach ( $this->loader->load() as $definition ) {
 			if ( $definition instanceof UnknownDefinition ) {
-				@trigger_error(
+				@trigger_error( // phpcs:ignore
 					sprintf(
 						'Trying to bind unknown value "%1$s". Currently wp-init can handle only simple callables and classes implementing "%2$s" interface',
 						is_string( $definition->value() ) ? $definition->value() : json_encode( $definition->value() ),

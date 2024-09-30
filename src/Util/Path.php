@@ -6,8 +6,7 @@ namespace WPDesk\Init\Util;
 
 final class Path {
 
-	/** @var string */
-	private $path;
+	private string $path;
 
 	public function __construct( string $path ) {
 		$this->path = $path;
@@ -19,7 +18,7 @@ final class Path {
 	}
 
 	public function absolute( ?string $base_path = null ): self {
-		$base_path = $base_path ?? getcwd();
+		$base_path ??= getcwd();
 		return ( new self( rtrim( $base_path, '/\\' ) . '/' . $this->path ) )->canonical();
 	}
 
@@ -29,21 +28,21 @@ final class Path {
 
 		$canonical_parts = [];
 
-		// Collapse "." and "..", if possible
+		// Collapse "." and "..", if possible.
 		foreach ( $parts as $part ) {
 			if ( '.' === $part || '' === $part ) {
 				continue;
 			}
 
 			// Collapse ".." with the previous part, if one exists
-			// Don't collapse ".." if the previous part is also ".."
+			// Don't collapse ".." if the previous part is also "..".
 			if ( '..' === $part && \count( $canonical_parts ) > 0 && '..' !== $canonical_parts[ \count( $canonical_parts ) - 1 ] ) {
 				array_pop( $canonical_parts );
 
 				continue;
 			}
 
-			// Only add ".." prefixes for relative paths
+			// Only add ".." prefixes for relative paths.
 			if ( '..' !== $part || '' === $root ) {
 				$canonical_parts[] = $part;
 			}
@@ -79,9 +78,7 @@ final class Path {
 		}
 
 		return array_map(
-			function ( $file ) {
-				return ( new self( $file ) )->absolute( $this->path );
-			},
+			fn( $file ): Path => ( new self( $file ) )->absolute( $this->path ),
 			array_values(
 				array_diff(
 					scandir( $this->path ),

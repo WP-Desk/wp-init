@@ -8,7 +8,7 @@ use WPDesk\Init\Plugin\Plugin;
 class CompositeBindingLoader implements BindingDefinitions {
 
 	/** @var BindingDefinitionLoader[] */
-	private $loaders;
+	private array $loaders;
 
 	public function __construct( BindingDefinitions ...$loaders ) {
 		$this->loaders = $loaders;

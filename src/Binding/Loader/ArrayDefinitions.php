@@ -10,11 +10,9 @@ use WPDesk\Init\Plugin\Plugin;
 
 class ArrayDefinitions implements BindingDefinitions {
 
-	/** @var array */
-	private $bindings;
+	private array $bindings;
 
-	/** @var DefinitionFactory */
-	private $factory;
+	private DefinitionFactory $factory;
 
 	public function __construct( array $bindings, ?DefinitionFactory $factory = null ) {
 		$this->bindings = $bindings;
@@ -29,10 +27,10 @@ class ArrayDefinitions implements BindingDefinitions {
 		foreach ( $bindings as $key => $value ) {
 			if ( is_array( $value ) ) {
 				if ( isset( $value['handler'] ) ) {
-					// Single item with handler
+					// Single item with handler.
 					yield $this->create( $value['handler'], $key, $value );
 				} else {
-					// Multiple items
+					// Multiple items.
 					foreach ( $value as $unit ) {
 						if ( is_array( $unit ) && isset( $unit['handler'] ) ) {
 							yield $this->create( $unit['handler'], $key, $unit );

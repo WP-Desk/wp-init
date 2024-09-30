@@ -7,8 +7,7 @@ use WPDesk\Init\Plugin\Plugin;
 
 class I18n implements Hookable {
 
-	/** @var Plugin */
-	private $plugin;
+	private Plugin $plugin;
 
 	public function __construct( Plugin $plugin ) {
 		$this->plugin = $plugin;

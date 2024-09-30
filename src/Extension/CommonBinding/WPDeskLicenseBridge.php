@@ -36,7 +36,7 @@ class WPDeskLicenseBridge implements Hookable {
 		add_action( 'plugins_loaded', $this, -50 );
 	}
 
-	public function __invoke() {
+	public function __invoke(): void {
 		// Backward compatibility with wp-builder hook.
 		if ( apply_filters( 'wpdesk_can_register_plugin', true, $this->plugin ) === false ) {
 			return;

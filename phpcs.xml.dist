@@ -36,7 +36,7 @@
 	<config name="minimum_supported_wp_version" value="6.2"/>
 
 	<!-- Set value aligned with supported PHP Version for PHPCompatibilityWP check. -->
-	<config name="testVersion" value="7.2-"/>
+	<config name="testVersion" value="7.4-"/>
 
 	<rule ref="WPDeskPlugin"/>
 
@@ -47,5 +47,17 @@
 	-->
 	<rule ref="Squiz.ControlStructures.InlineIfDeclaration">
 		<exclude name="Squiz.ControlStructures.InlineIfDeclaration.NoBrackets"/>
+	</rule>
+
+	<rule ref="Squiz.Commenting.ClassComment.Missing">
+		<exclude-pattern>*src/**/*.php$</exclude-pattern>
+		<exclude-pattern>*src/*.php$</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment.MissingVar">
+		<exclude-pattern>*src/**/*.php$</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment.Missing">
+		<exclude-pattern>*src/**/*.php$</exclude-pattern>
+		<exclude-pattern>*src/*.php$</exclude-pattern>
 	</rule>
 </ruleset>

@@ -33,19 +33,15 @@ use WPDesk\Init\Plugin\Plugin;
 final class Kernel {
 
 	/** @var string|null Plugin filename. */
-	private $filename;
+	private ?string $filename;
 
-	/** @var Configuration */
-	private $config;
+	private Configuration $config;
 
-	/** @var PhpFileLoader */
-	private $loader;
+	private PhpFileLoader $loader;
 
-	/** @var HeaderParser */
-	private $parser;
+	private HeaderParser $parser;
 
-	/** @var ExtensionsSet */
-	private $extensions;
+	private ExtensionsSet $extensions;
 
 	private PhpFileDumper $dumper;
 

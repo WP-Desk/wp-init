@@ -9,10 +9,9 @@ use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\CallableDefinition;
 
-class CallableBinder implements ComposableBinder {
+final class CallableBinder implements ComposableBinder {
 
-	/** @var ContainerInterface */
-	private $container;
+	private ContainerInterface $container;
 
 	public function __construct( ContainerInterface $c ) {
 		$this->container = $c;

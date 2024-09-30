@@ -8,11 +8,9 @@ use WPDesk\Init\Binding\Loader\BindingDefinitions;
 
 class GenericDriver implements HookDriver {
 
-	/** @var BindingDefinitions */
-	private $definitions;
+	private BindingDefinitions $definitions;
 
-	/** @var Binder */
-	private $binder;
+	private Binder $binder;
 
 	public function __construct( BindingDefinitions $definitions, Binder $binder ) {
 		$this->definitions = $definitions;
@@ -23,7 +21,7 @@ class GenericDriver implements HookDriver {
 		// Load has to be deffered until plugins_loaded because classes may implement or extend interfaces/classes which doesn't exist yet.
 		add_action(
 			'plugins_loaded',
-			function () {
+			function (): void {
 				foreach ( $this->definitions->load() as $definition ) {
 					if ( $definition->hook() === null ) {
 						$this->binder->bind( $definition );

@@ -13,13 +13,12 @@ use WPDesk\Init\Binding\Definition\HookableDefinition;
 
 class StoppableBinder implements ComposableBinder {
 
-	/** @var ContainerInterface */
-	private $container;
+	private ContainerInterface $container;
 
 	/** @var Binder */
 	private $binder;
 
-	private $should_stop = false;
+	private bool $should_stop = false;
 
 	public function __construct( BinderInstance $b, ContainerInterface $c ) {
 		$this->binder    = $b;

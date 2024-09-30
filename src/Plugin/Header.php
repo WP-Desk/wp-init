@@ -6,8 +6,7 @@ namespace WPDesk\Init\Plugin;
 
 final class Header implements \ArrayAccess {
 
-	/** @var array */
-	private $header_data;
+	private array $header_data;
 
 	public function __construct( array $header_data ) {
 		$this->header_data = $header_data;

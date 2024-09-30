@@ -15,6 +15,7 @@ use WPDesk\Init\Extension\ConditionalExtension;
 
 final class Init {
 
+	/** @var bool */
 	private static $bootable = true;
 
 	/** @var Configuration */
@@ -58,7 +59,7 @@ final class Init {
 		}
 
 		if ( $filename === null ) {
-			$backtrace = \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS, 1 );
+			$backtrace = \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS, 1 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 			$filename  = $backtrace[0]['file'];
 		}
 

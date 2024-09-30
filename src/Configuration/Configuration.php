@@ -9,7 +9,7 @@ namespace WPDesk\Init\Configuration;
 class Configuration implements ReadableConfig, \ArrayAccess {
 
 	/** @var array<string, mixed> */
-	private $config;
+	private array $config;
 
 	public function __construct( array $config ) {
 		$this->config = $config;

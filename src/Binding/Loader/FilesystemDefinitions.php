@@ -9,14 +9,11 @@ use WPDesk\Init\Util\PhpFileLoader;
 
 class FilesystemDefinitions implements BindingDefinitions {
 
-	/** @var Path */
-	private $path;
+	private Path $path;
 
-	/** @var PhpFileLoader */
-	private $loader;
+	private PhpFileLoader $loader;
 
-	/** @var DefinitionFactory */
-	private $def_factory;
+	private DefinitionFactory $def_factory;
 
 	public function __construct( $path, ?PhpFileLoader $loader = null, ?DefinitionFactory $def_factory = null ) {
 		$this->path        = new Path( (string) $path );

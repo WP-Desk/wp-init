@@ -11,16 +11,16 @@ use WPDesk\PluginBuilder\Plugin\Hookable;
  */
 final class HooksRegistry implements \IteratorAggregate {
 
-	private static $instance;
+	private static ?HooksRegistry $instance = null;
 
 	/** @var array<class-string<Hookable>|Hookable> */
-	private $callbacks = [];
+	private array $callbacks = [];
 
-	private $container;
+	private ?ContainerInterface $container = null;
 
 	private function __construct() {}
 
-	public function inject_container( ContainerInterface $c ) {
+	public function inject_container( ContainerInterface $c ): void {
 		$this->container = $c;
 	}
 
@@ -35,19 +35,13 @@ final class HooksRegistry implements \IteratorAggregate {
 	public function getIterator(): Traversable {
 		return new \ArrayIterator(
 			array_map(
-				function ( $hookable ) {
-					if ( is_string( $hookable ) ) {
-						return $this->container->get( $hookable );
-					}
-
-					return $hookable;
-				},
+				fn ( $hookable ) => is_string( $hookable ) ? $this->container->get( $hookable ) : $hookable,
 				$this->callbacks
 			)
 		);
 	}
 
-	public function add( $hookable ) {
+	public function add( $hookable ): void {
 		$this->callbacks[] = $hookable;
 	}
 }

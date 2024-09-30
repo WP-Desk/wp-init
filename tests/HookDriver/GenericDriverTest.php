@@ -22,7 +22,7 @@ class GenericDriverTest extends TestCase {
 					public function bind( Definition $def ): void {
 					}
 				}),
-			function ( $binder ) {
+			function ( $binder ): void {
 				$this->assertTrue( $binder->is_bound() );
 			}
 		];

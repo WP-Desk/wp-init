@@ -7,8 +7,7 @@ use WPDesk\Init\Plugin\Plugin;
 
 class CustomOrdersTableCompatibility implements Hookable {
 
-	/** @var Plugin */
-	private $plugin;
+	private Plugin $plugin;
 
 	public function __construct( Plugin $plugin ) {
 		$this->plugin = $plugin;
@@ -19,7 +18,8 @@ class CustomOrdersTableCompatibility implements Hookable {
 	}
 
 	public function __invoke(): void {
-		$features_util_class = '\\' . 'Automattic' . '\\' . 'WooCommerce' . '\\' . 'Utilities' . '\\' . 'FeaturesUtil';
+		// Concatenate string to make sure, prefixer will not parse it.
+		$features_util_class = '\\' . 'Automattic' . '\\' . 'WooCommerce' . '\\' . 'Utilities' . '\\' . 'FeaturesUtil'; //phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found
 		if ( class_exists( $features_util_class ) ) {
 			$features_util_class::declare_compatibility(
 				'custom_order_tables',

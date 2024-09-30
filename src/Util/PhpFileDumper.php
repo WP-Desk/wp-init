@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
 declare( strict_types=1 );
 
 namespace WPDesk\Init\Util;
@@ -11,7 +12,7 @@ class PhpFileDumper {
 
 		$content  = '<?php' . PHP_EOL . PHP_EOL;
 		$content .= 'declare(strict_types=1);' . PHP_EOL . PHP_EOL;
-		$content .= 'return ' . var_export( $config, true ) . ';' . PHP_EOL;
+		$content .= 'return ' . var_export( $config, true ) . ';' . PHP_EOL; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 
 		$this->writeFileAtomic( $filename, $content );
 	}

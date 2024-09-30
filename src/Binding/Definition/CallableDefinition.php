@@ -9,8 +9,7 @@ use WPDesk\Init\Binding\Definition;
 /** @implements Definition<callable> */
 class CallableDefinition implements Definition {
 
-	/** @var ?string */
-	private $hook;
+	private ?string $hook;
 
 	/** @var callable */
 	private $callable;

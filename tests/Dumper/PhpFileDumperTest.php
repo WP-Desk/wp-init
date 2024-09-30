@@ -7,7 +7,7 @@ use WPDesk\Init\Util\PhpFileDumper;
 
 class PhpFileDumperTest extends \WPDesk\Init\Tests\TestCase {
 
-	public function test_dump_php_file() {
+	public function test_dump_php_file(): void {
 		$dir    = $this->initTempPlugin();
 		$dumper = new PhpFileDumper();
 		$dumper->dump( [ 'foo' => 'bar' ], $dir . '/dump.php' );
