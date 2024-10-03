@@ -90,16 +90,12 @@ final class Kernel {
 	}
 
 	private function get_container_name( Plugin $plugin ): string {
-		return str_replace( '-', '_', $plugin->get_slug() ) . '_container';
+		return preg_replace( '/[^\w_]/', '_', implode("_", [ $plugin->get_slug(), $plugin->get_version(), 'container' ]) );
 	}
 
 	private function initialize_container( Plugin $plugin ): Container {
 		$original_builder = new DiBuilder();
 
-		// If there's a cache file, use it as we are in production environment.
-		// Otherwise, build the container from scratch and use live version, without compilation.
-		//
-		// On failure, restart container compilation, without cache.
 		if ( $this->config->get( 'debug', false ) === false ) {
 			$original_builder->enableCompilation(
 				$this->get_cache_path(),
