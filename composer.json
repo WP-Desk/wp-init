@@ -9,6 +9,9 @@
     "plugin",
     "bootstrap"
   ],
+  "bin": [
+    "bin/wpinit"
+  ],
   "authors": [
     {
       "name": "WPDesk",
