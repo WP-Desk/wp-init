@@ -1,6 +1,6 @@
 # wp-init changelog
 
-## [Unreleased]
+## [0.10.0] - 2024-10-07
 ### Added
 - Dependency injection container compilation on first request.
 - Integration with `wpdesk/wp-wpdesk-license`, enabled when library is available.
@@ -18,8 +18,6 @@ return [
   ],
 ];
 ```
-### Removed
-- Removed `wpinit` command. Previously it served as a tool to compile static resources, like plugin info. This functionality have been removed in favor of runtime compilation on client's side.
 ### Changed
 - Enabling legacy mode requires verbosely activating that in configuration with `'legacy' => true`.
 - `wp-init` now requires PHP >=7.4.
