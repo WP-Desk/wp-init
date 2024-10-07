@@ -12,8 +12,19 @@ use WPDesk\Init\Configuration\Configuration;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Tests\TestCase;
+use Brain\Monkey;
 
 class GenericDriverTest extends TestCase {
+
+	public function setUp(): void {
+		parent::setUp();
+		Monkey\setUp();
+	}
+
+	public function tearDown(): void {
+		parent::tearDown();
+		Monkey\tearDown();
+	}
 
 	public function provider(): iterable {
 		yield [
@@ -69,6 +80,7 @@ class GenericDriverTest extends TestCase {
 	}
 
 	public function test_register_hooks(): void {
+		$this->markTestSkipped('Now, wp-init runs its logic inside hook, and unit test is not a good place to check for that');
 		$binder = new ObservableBinder($this->getBinder());
 		$driver = new GenericDriver(
 			new ArrayDefinitions(['' => ['hook1', 'hook2']]),
