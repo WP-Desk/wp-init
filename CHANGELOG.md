@@ -1,5 +1,9 @@
 # wp-init changelog
 
+## [0.10.1] - 2024-10-08
+### Changed
+- `wpinit` CLI command automatically seeks for potential plugin file, instead of relying on passing it as argument.
+
 ## [0.10.0] - 2024-10-07
 ### Added
 - Dependency injection container compilation on first request.
