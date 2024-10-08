@@ -11,8 +11,8 @@ if (!file_exists($autoloadPath)) {
 }
 require_once $autoloadPath;
 
-function displayHelp() {
-    echo "Usage: " . basename(__FILE__) . " <plugin_file> <cache_dir>\n";
+function display_help() {
+    echo "Usage: " . basename(__FILE__) . " <cache_dir>\n";
     echo "Initialize a WordPress plugin by parsing the input file and generating output.\n";
     echo "\n";
     echo "Arguments:\n";
@@ -36,13 +36,13 @@ function get_possible_plugin_files(): array {
 }
 
 if (in_array('--help', $argv) || in_array('-h', $argv)) {
-    displayHelp();
+    display_help();
     exit(0);
 }
 
 if ($argc < 2 || in_array('--help', $argv) || in_array('-h', $argv)) {
     echo "\033[31mError: Missing required arguments.\033[0m\n";
-	displayHelp();
+	display_help();
     exit(1);
 }
 
