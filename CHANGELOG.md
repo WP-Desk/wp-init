@@ -1,5 +1,9 @@
 # wp-init changelog
 
+## [0.10.2] - 2024-10-08
+### Fixed
+- Typo in configuration parameter name.
+
 ## [0.10.1] - 2024-10-08
 ### Changed
 - `wpinit` CLI command automatically seeks for potential plugin file, instead of relying on passing it as argument.
