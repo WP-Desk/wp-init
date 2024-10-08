@@ -51,7 +51,7 @@ class ConditionalExtension implements Extension {
 
 		if ( class_exists( \WPDesk\License\LicenseServer\PluginRegistrator::class ) ) {
 			$definitions[ WPDeskLicenseBridge::class ] = ( new AutowireDefinitionHelper() )
-				->constructorParameter( 'proudct_id', $config->get( 'product_id' ) )
+				->constructorParameter( 'product_id', $config->get( 'product_id' ) )
 				->constructorParameter( 'shops', (array) $config->get( 'shops', [] ) );
 		}
 
