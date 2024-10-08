@@ -16,8 +16,23 @@ function displayHelp() {
     echo "Initialize a WordPress plugin by parsing the input file and generating output.\n";
     echo "\n";
     echo "Arguments:\n";
-    echo "  <plugin_file> Path to the input file to parse\n";
     echo "  <cache_dir>   Path to the output file to generate\n";
+}
+
+function get_possible_plugin_files(): array {
+	$plugins_dir = opendir(getcwd());
+	$plugin_files = [];
+	while ( ( $file = readdir( $plugins_dir ) ) !== false ) {
+		if ( str_starts_with( $file, '.' ) || str_ends_with( $file, '.php' ) === false || is_dir( $file ) ) {
+			continue;
+		}
+
+		$plugin_files[] = $file;
+	}
+
+	closedir( $plugins_dir );
+
+	return $plugin_files;
 }
 
 if (in_array('--help', $argv) || in_array('-h', $argv)) {
@@ -25,27 +40,33 @@ if (in_array('--help', $argv) || in_array('-h', $argv)) {
     exit(0);
 }
 
-if ($argc < 3 || in_array('--help', $argv) || in_array('-h', $argv)) {
+if ($argc < 2 || in_array('--help', $argv) || in_array('-h', $argv)) {
     echo "\033[31mError: Missing required arguments.\033[0m\n";
 	displayHelp();
     exit(1);
 }
 
-$inputFile = $argv[1];
-$outputDir = rtrim($argv[2], '/\\') . '/';
+$outputDir = rtrim($argv[1], '/\\') . '/';
 
-// Check if input file exists
-if (!file_exists($inputFile)) {
-    echo "\033[31mError: Input file '$inputFile' does not exist.\033[0m\n";
-    exit(1);
+$parser = new DefaultHeaderParser();
+$plugin_header = [];
+
+foreach (get_possible_plugin_files() as $file) {
+	$plugin_header = $parser->parse($file);
+
+	if (! empty($plugin_header)) {
+		break;
+	}
+}
+
+if (empty($plugin_header)) {
+	echo "\033[31mError: No plugin data found. File has to be accessible from project's root folder and include required WordPress plugin headers.\033[0m\n";
+	exit(1);
 }
 
 try {
-    $parser = new DefaultHeaderParser();
-    $data = $parser->parse($inputFile);
-
     $dumper = new PhpFileDumper();
-    $dumper->dump($data, $outputDir . 'plugin.php');
+    $dumper->dump($plugin_header, $outputDir . 'plugin.php');
 
     echo "\033[32mSuccess: Plugin data generated.\033[0m\n";
     exit(0);
