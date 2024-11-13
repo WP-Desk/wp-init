@@ -1,5 +1,9 @@
 # wp-init changelog
 
+## [0.10.3] - 2024-11-13
+### Changed
+- Move i18n filter to `init` hook for WordPress 6.7 compatibility.
+
 ## [0.10.2] - 2024-10-08
 ### Fixed
 - Typo in configuration parameter name.
