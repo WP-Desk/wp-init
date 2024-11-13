@@ -23,6 +23,11 @@ class ArrayDefinitions implements BindingDefinitions {
 		yield from $this->normalize( $this->bindings );
 	}
 
+	/**
+	 * @param iterable<string,array> $bindings
+	 *
+	 * @return iterable<Definition>
+	 */
 	private function normalize( iterable $bindings ): iterable {
 		foreach ( $bindings as $key => $value ) {
 			if ( is_array( $value ) ) {

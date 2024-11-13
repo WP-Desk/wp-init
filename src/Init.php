@@ -22,7 +22,9 @@ final class Init {
 	private $config;
 
 	/**
-	 * @param string|array|Configuration $config
+	 * @param string|array<string,mixed>|Configuration $config
+	 *
+	 * @return self
 	 */
 	public static function setup( $config ) {
 		$result = require __DIR__ . '/platform_check.php';
@@ -35,7 +37,7 @@ final class Init {
 	}
 
 	/**
-	 * @param string|array|Configuration $config
+	 * @param string|array<string, mixed>|Configuration $config
 	 */
 	public function __construct( $config ) {
 		if ( $config instanceof Configuration ) {
@@ -52,8 +54,10 @@ final class Init {
 
 	/**
 	 * @param string|null $filename Filename of the booted plugin. May be null, if called from plugin's main file.
+	 *
+	 * @return void
 	 */
-	public function boot( ?string $filename = null ) {
+	public function boot( $filename = null ) {
 		if ( self::$bootable === false ) {
 			return;
 		}
