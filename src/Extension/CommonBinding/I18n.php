@@ -14,11 +14,7 @@ class I18n implements Hookable {
 	}
 
 	public function hooks(): void {
-		if ( did_action( 'plugins_loaded' ) ) {
-			$this->__invoke();
-		} else {
-			add_action( 'plugins_loaded', $this );
-		}
+		add_action( 'init', $this );
 	}
 
 	public function __invoke(): void {
