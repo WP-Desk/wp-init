@@ -1,5 +1,13 @@
 # wp-init changelog
 
+## [0.10.4] - 2024-11-27
+### Fixed
+- When container cannot be compiled to disk, it will be used without cache.
+### Changed
+- Serious changes in `StoppableBinder` logic. It can only stop hookable classes from now, leaving the execution of callable shortcut bindings.
+- Improvements in dev environment detection – container is not compiled, when WordPress environment type is different from `production`.
+- Reverted: Move i18n filter to `init` hook for WordPress 6.7 compatibility.
+
 ## [0.10.3] - 2024-11-13
 ### Changed
 - Move i18n filter to `init` hook for WordPress 6.7 compatibility.
