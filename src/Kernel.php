@@ -92,10 +92,10 @@ final class Kernel {
 		return preg_replace( '/[^\w_]/', '_', implode("_", [ $plugin->get_slug(), $plugin->get_version(), 'container' ]) );
 	}
 
-	private function initialize_container( Plugin $plugin ): Container {
+	private function initialize_container( Plugin $plugin, bool $useCache = true ): Container {
 		$original_builder = new DiBuilder();
 
-		if ( $this->config->get( 'debug', false ) === false ) {
+		if ( $this->is_prod() && $useCache ) {
 			$original_builder->enableCompilation(
 				$this->get_cache_path(),
 				$this->get_container_name( $plugin )
@@ -112,7 +112,11 @@ final class Kernel {
 			$extension->build( $builder, $plugin, $this->config );
 		}
 
-		return $builder->build();
+		try {
+			return $builder->build();
+		} catch ( \Exception $e ) {
+			return $this->initialize_container( $plugin, false );
+		}
 	}
 
 	private function prepare_driver( ContainerInterface $container ): HookDriver {
@@ -125,7 +129,7 @@ final class Kernel {
 			new ClusteredLoader( $loader )
 		);
 
-		if ( $this->config->get( 'debug', false ) ) {
+		if ( $this->is_dev() ) {
 			$loader = new DebugBindingLoader( $loader );
 		}
 
@@ -145,5 +149,13 @@ final class Kernel {
 		}
 
 		return $driver;
+	}
+
+	private function is_dev(): bool {
+		return $this->config->get( 'debug', false ) || wp_get_environment_type() !== 'development';
+	}
+
+	private function is_prod(): bool {
+		return $this->is_dev() === false;
 	}
 }
