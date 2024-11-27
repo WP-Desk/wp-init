@@ -9,7 +9,6 @@ use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\StoppableBinder as Stop;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Binder as BinderInstance;
-use WPDesk\Init\Binding\Definition\HookableDefinition;
 
 class StoppableBinder implements ComposableBinder {
 

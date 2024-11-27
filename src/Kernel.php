@@ -7,7 +7,6 @@ use DI\Container;
 use DI\ContainerBuilder as DiBuilder;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Binder\CallableBinder;
-use WPDesk\Init\Binding\Binder\CollectionBinder;
 use WPDesk\Init\Binding\Binder\CompositeBinder;
 use WPDesk\Init\Binding\Binder\HookableBinder;
 use WPDesk\Init\Binding\Binder\StoppableBinder;
@@ -132,12 +131,9 @@ final class Kernel {
 
 		$driver = new GenericDriver(
 			$loader,
-			new StoppableBinder(
-				new CompositeBinder(
-					new HookableBinder( $container ),
-					new CallableBinder( $container )
-				),
-				$container
+			new CompositeBinder(
+				new StoppableBinder( new HookableBinder( $container ), $container ),
+				new CallableBinder( $container )
 			)
 		);
 
