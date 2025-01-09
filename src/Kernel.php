@@ -157,7 +157,7 @@ final class Kernel {
 	}
 
 	private function is_dev(): bool {
-		return $this->config->get( 'debug', false ) || wp_get_environment_type() !== 'development';
+		return $this->config->get( 'debug', false ) || wp_get_environment_type() === 'development';
 	}
 
 	private function is_prod(): bool {
