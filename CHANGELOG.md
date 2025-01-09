@@ -1,5 +1,9 @@
 # wp-init changelog
 
+## [0.10.5] - 2025-01-09
+### Fixed
+- Fixed condition checking if current environment is development, causing container to always use live version.
+
 ## [0.10.4] - 2024-11-27
 ### Fixed
 - When container cannot be compiled to disk, it will be used without cache.
