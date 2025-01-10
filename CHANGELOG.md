@@ -1,5 +1,11 @@
 # wp-init changelog
 
+## [0.10.6] - 2025-01-10
+### Fixed
+- Fixed path for loading plugin translations.
+### Changed
+- Improved _development_ environment detection. Now, in addition to previous methods, adding `dev` suffix to plugin version enabled development environment (no container compilation).
+
 ## [0.10.5] - 2025-01-09
 ### Fixed
 - Fixed condition checking if current environment is development, causing container to always use live version.

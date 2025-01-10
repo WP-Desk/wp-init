@@ -22,10 +22,18 @@ class I18n implements Hookable {
 	}
 
 	public function __invoke(): void {
+		$relative_path = str_replace(
+			WP_PLUGIN_DIR . '/',
+			'',
+			$this->plugin->get_path(
+				$this->plugin->header()->get( 'DomainPath' )
+			)
+		);
+
 		\load_plugin_textdomain(
 			$this->plugin->get_slug(),
 			false,
-			$this->plugin->header()->get( 'DomainPath' )
+			$relative_path
 		);
 	}
 }

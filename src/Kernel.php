@@ -79,7 +79,7 @@ final class Kernel {
 		$container->set( Plugin::class, $plugin );
 		$container->set( Configuration::class, $this->config );
 
-		$this->prepare_driver( $container )->register_hooks();
+		$this->prepare_driver( $container, $plugin )->register_hooks();
 	}
 
 	private function get_cache_path( string $path = '' ): string {
@@ -88,14 +88,19 @@ final class Kernel {
 		);
 	}
 
+	/**
+	 * Container name in scheme: `<slug>_<version>_container`.
+	 *
+	 * Container is compiled in client environment, so in order to allow graceful upgrade, include version name to the container. Compiled container class is also autoloaded, so it is necessary that name is unique enough to avoid clash with other plugins.
+	 */
 	private function get_container_name( Plugin $plugin ): string {
-		return preg_replace( '/[^\w_]/', '_', implode("_", [ $plugin->get_slug(), $plugin->get_version(), 'container' ]) );
+		return preg_replace( '/[^\w_]/', '_', implode( '_', [ $plugin->get_slug(), $plugin->get_version(), 'container' ] ) );
 	}
 
 	private function initialize_container( Plugin $plugin, bool $use_cache = true ): Container {
 		$original_builder = new DiBuilder();
 
-		if ( $this->is_prod() && $use_cache ) {
+		if ( $this->is_prod( $plugin ) && $use_cache ) {
 			$original_builder->enableCompilation(
 				$this->get_cache_path(),
 				$this->get_container_name( $plugin )
@@ -124,7 +129,7 @@ final class Kernel {
 		}
 	}
 
-	private function prepare_driver( ContainerInterface $container ): HookDriver {
+	private function prepare_driver( ContainerInterface $container, Plugin $plugin ): HookDriver {
 		$loader = new CompositeBindingLoader();
 		foreach ( $this->extensions as $extension ) {
 			$loader->add( $extension->bindings( $container ) );
@@ -134,7 +139,7 @@ final class Kernel {
 			new ClusteredLoader( $loader )
 		);
 
-		if ( $this->is_dev() ) {
+		if ( $this->is_dev( $plugin ) ) {
 			$loader = new DebugBindingLoader( $loader );
 		}
 
@@ -156,11 +161,11 @@ final class Kernel {
 		return $driver;
 	}
 
-	private function is_dev(): bool {
-		return $this->config->get( 'debug', false ) || wp_get_environment_type() === 'development';
+	private function is_dev( Plugin $plugin ): bool {
+		return $this->config->get( 'debug', false ) || wp_get_environment_type() === 'development' || str_contains( $plugin->get_version(), 'dev' );
 	}
 
-	private function is_prod(): bool {
-		return $this->is_dev() === false;
+	private function is_prod( Plugin $plugin ): bool {
+		return $this->is_dev( $plugin ) === false;
 	}
 }
