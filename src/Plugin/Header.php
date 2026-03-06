@@ -20,7 +20,6 @@ final class Header implements \ArrayAccess {
 		return $this->has( $offset );
 	}
 
-	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		if ( ! is_string( $offset ) ) {
 			throw new \InvalidArgumentException( 'Header key must be a string' );

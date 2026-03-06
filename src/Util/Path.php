@@ -13,7 +13,7 @@ final class Path {
 	}
 
 	public function canonical(): self {
-		$root = str_starts_with( $this->path, '/' ) ? '/' : '';
+		$root = $this->is_absolute_path( $this->path ) ? '/' : '';
 		return new self( $root . implode( '/', $this->find_canonical_parts() ) );
 	}
 
@@ -24,7 +24,7 @@ final class Path {
 
 	private function find_canonical_parts(): array {
 		$parts = explode( '/', $this->path );
-		$root  = str_starts_with( $this->path, '/' ) ? '/' : '';
+		$root  = $this->is_absolute_path( $this->path ) ? '/' : '';
 
 		$canonical_parts = [];
 
@@ -90,5 +90,9 @@ final class Path {
 
 	public function __toString(): string {
 		return $this->path;
+	}
+
+	private function is_absolute_path( string $path ): bool {
+		return isset( $path[0] ) && $path[0] === '/';
 	}
 }

@@ -41,7 +41,6 @@ class Configuration implements ReadableConfig, \ArrayAccess {
 		return $this->has( $offset );
 	}
 
-	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		return $this->get( $offset );
 	}

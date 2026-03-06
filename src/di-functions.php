@@ -22,8 +22,10 @@ use DI\Definition\ValueDefinition;
 if ( ! function_exists( 'WPDesk\Init\DI\value' ) ) {
 	/**
 	 * Helper for defining a value.
+	 *
+	 * @param mixed $value
 	 */
-	function value( mixed $value ): ValueDefinition {
+	function value( $value ): ValueDefinition {
 		return new ValueDefinition( $value );
 	}
 }
@@ -98,7 +100,7 @@ if ( ! function_exists( 'WPDesk\Init\DI\env' ) ) {
 	 * @param string $variableName The name of the environment variable.
 	 * @param mixed $defaultValue The default value to be used if the environment variable is not defined.
 	 */
-	function env( string $variableName, mixed $defaultValue = null ): EnvironmentVariableDefinition {
+	function env( string $variableName, $defaultValue = null ): EnvironmentVariableDefinition {
 		// Only mark as optional if the default value was *explicitly* provided.
 		$isOptional = 2 === func_num_args();
 

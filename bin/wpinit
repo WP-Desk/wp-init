@@ -23,7 +23,7 @@ function get_possible_plugin_files(): array {
 	$plugins_dir = opendir(getcwd());
 	$plugin_files = [];
 	while ( ( $file = readdir( $plugins_dir ) ) !== false ) {
-		if ( str_starts_with( $file, '.' ) || str_ends_with( $file, '.php' ) === false || is_dir( $file ) ) {
+		if ( strpos( $file, '.' ) === 0 || substr( $file, -4 ) !== '.php' || is_dir( $file ) ) {
 			continue;
 		}
 
