@@ -4,7 +4,7 @@
 WordPress life cycle and provides some additional features, like filling DI container with your
 services definitions.
 
-## `hook_resources_path`
+## `hooks`
 
 Pass a path to the file/directory with your hook actions. Configuration accepts any valid path
 string, relative or absolute, either `hook_providers` or `__DIR__ . '/hook_providers/plugins_loaded.php'`
@@ -29,6 +29,8 @@ return [
 ];
 ```
 
+`hook_resources_path` is still accepted as a compatibility key, but `hooks` is the canonical name for `1.0`.
+
 ## `services`
 
 As you add more services with increasing complexity, you will need to provide some kind of
@@ -36,24 +38,65 @@ definitions for a DI container to create objects. Pass a path to a file, which w
 definitions. Refer to [php-di documentation](https://php-di.org/doc/definitions.html) for more
 information on such file content.
 
-> *Warning*
->
-> If you are using _shortcut_ functions from `php-di/php-di` (e.g. `DI\autowire`, `DI\create`), you
-> must load them first. Add `require __DIR__ . '/vendor_prefixed/php-di/php-di/src/functions.php';`
-> to your plugin file.
+`wp-init` loads its own prefixed helper functions for PHP-DI during bootstrap, so plugin bootstrap files do not need to load helper functions manually.
 
 ## `cache_path`
 
 Plugin header data and compiled DI container is cached in a directory specified by this
 setting. Defaults to `generated`.
 
-## `requirements`
+## `modules`
 
-**This setting only works when `wpdesk/wp-basic-requirements` is installed.**
+Modules are configured as an associative array where the key is a module class name and the value is its configuration array.
 
-Enables your plugin to check an environment requirement before instantiation, e.g. PHP version or
-active plugins. Refer to [wp-basic-requirements documentation](https://gitlab.wpdesk.dev/wpdesk/wp-basic-requirements)
-for more information on setting structure.
+Example:
+
+```php
+<?php
+
+use WPDesk\Init\Module\RequirementsModule;
+
+return [
+	'modules' => [
+		RequirementsModule::class => [
+			'requirements' => [
+				'plugins' => [
+					[
+						'name' => 'woocommerce/woocommerce.php',
+						'nice_name' => 'WooCommerce',
+					],
+				],
+			],
+		],
+	],
+];
+```
+
+`null` is also accepted as a module configuration value and is normalized to an empty array.
+
+## `environment`
+
+Controls bootstrap mode. Supported values are `production` and `development`.
+
+If omitted, `wp-init` resolves the environment in this order:
+
+1. explicit config value
+2. `wp_get_environment_type()`
+3. plugin version containing `dev`
+4. fallback to `production`
+
+## `debug`
+
+Enables additional diagnostics. When omitted, `development` environment implies debug mode.
+
+## Requirements and Legacy Modules
+
+The old root-level `requirements` and `plugin_class_name` keys are still accepted for compatibility.
+
+Preferred `1.0` direction:
+
+- requirements go into `RequirementsModule` config
+- legacy builder support is enabled by adding `LegacyBuilderModule` to `modules`
 
 ## `plugin_class_name`
 

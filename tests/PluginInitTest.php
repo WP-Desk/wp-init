@@ -3,16 +3,19 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests;
 
-use WPDesk\Init\Plugin\Plugin;
-use WPDesk\Init\Kernel;
 use Brain\Monkey;
+use Brain\Monkey\Functions;
+use WPDesk\Init\Init;
 
-class PluginInitTest extends TestCase {
+final class PluginInitTest extends TestCase {
 
 	protected function setUp(): void {
-		Monkey\setUp();
-		Monkey\Functions\when('plugin_dir_path')->alias('dirname');
 		parent::setUp();
+		Monkey\setUp();
+		Functions\when( 'plugin_dir_path' )->alias( 'dirname' );
+		Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.org/plugin/' );
+		Functions\when( 'plugin_basename' )->returnArg();
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
 	}
 
 	protected function tearDown(): void {
@@ -20,19 +23,53 @@ class PluginInitTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function xtest_initialization(): void {
-		$this->initTempPlugin('simple-plugin');
+	public function test_boot_registers_deferred_plugins_loaded_hook_for_hooks_config(): void {
+		$plugin_file = $this->createTempFile(
+			'example-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Example plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
 
-		(new Kernel([]))->boot();
+		Functions\expect( 'add_action' )
+			->once()
+			->with( 'plugins_loaded', \Mockery::type( \Closure::class ), -50 );
+
+		Init::setup(
+			[
+				'hooks' => __DIR__ . '/Fixtures/hook-bindings',
+			]
+		)->boot( $plugin_file );
+
+		$this->addToAssertionCount( 1 );
 	}
 
-	private function load_plugin_file( $dir, $slug ): ?Plugin {
-		$load = \Closure::bind( static function () use ( $dir, $slug ): ?Plugin {
-			require $dir . "/$slug.php";
+	public function test_boot_supports_legacy_hook_resources_path_key(): void {
+		$plugin_file = $this->createTempFile(
+			'legacy-key-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Legacy key plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
 
-			return $plugin;
-		}, null, null );
+		Functions\expect( 'add_action' )
+			->once()
+			->with( 'plugins_loaded', \Mockery::type( \Closure::class ), -50 );
 
-		return $load();
+		Init::setup(
+			[
+				'hook_resources_path' => __DIR__ . '/Fixtures/hook-bindings',
+			]
+		)->boot( $plugin_file );
+
+		$this->addToAssertionCount( 1 );
 	}
 }

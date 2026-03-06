@@ -47,18 +47,21 @@ For plugin configuration, you may focus on succinct, declarative configuration.
 <?php
 
 return [
-	'hook_resources_path' => 'config/hook_providers',
-	'services' => 'config/services.inc.php',
+	'hooks' => 'config/hooks',
+	'services' => 'config/services.php',
 	'cache_path' => 'generated',
-
-	'requirements' => [
-		'plugins' => [
-			'name' => 'woocommerce/woocommerce.php',
-			'nice_name' => 'WooCommerce',
-		]
+	'modules' => [
+		\WPDesk\Init\Module\RequirementsModule::class => [
+			'requirements' => [
+				'plugins' => [
+					[
+						'name' => 'woocommerce/woocommerce.php',
+						'nice_name' => 'WooCommerce',
+					],
+				],
+			],
+		],
 	],
-
-	'plugin_class_name' => 'Example\Plugin',
 ];
 ```
 
