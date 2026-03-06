@@ -1,5 +1,15 @@
 # wp-init changelog
 
+## [1.0.0] - Unreleased
+### Changed
+- Replaced extension-style bootstrap behavior with explicit modules and boot gates.
+- Tightened configuration around canonical `hooks`, `services`, `modules`, `activation`, and `deactivation` keys.
+- Activation and deactivation handlers are now explicit first-class lifecycle hooks.
+- Invalid bindings and invalid enabled module config now fail loudly instead of being ignored.
+- Legacy builder support is now an explicit module configured under `modules`.
+- Requirements, tracker, and licensing integrations are module-driven instead of auto-enabled by package detection.
+- Removed the `wpinit` CLI helper from the public package surface.
+
 ## [0.10.6] - 2025-01-10
 ### Fixed
 - Fixed path for loading plugin translations.

@@ -1,7 +1,5 @@
 # WordPress plugin initializer
 
-Boot your plugin with superpowers.
-
 ## Installation
 
 To use this library in your project, add it to `composer.json`:
@@ -10,19 +8,9 @@ To use this library in your project, add it to `composer.json`:
 composer require wpdesk/wp-init
 ```
 
-## Creating a Plugin
+## Bootstrapping a plugin
 
-Preferred method of using this library exercise Object Oriented Programming and organizing your
-actions and filters in a multiple classes, although it isn't the only way you can interact (and
-benefit from this library).
-
-The plugin initialization consists of the following steps:
-
-1. Create a regular main plugin file, following [header requirements](https://developer.wordpress.org/plugins/plugin-basics/header-requirements/)
-1. Prepare DI container definitions for your services.
-1. Declare all classes included in hook binding.
-
-The above limits your main plugin file to a short and simple structure.
+Keep the main plugin file minimal:
 
 ```php
 <?php
@@ -34,24 +22,23 @@ use WPDesk\Init\Init;
 
 require __DIR__ . '/vendor/autoload.php';
 
-Init::setup('config.php')->boot();
+Init::setup( __DIR__ . '/config.php' )->boot();
 ```
 
-### Plugin configuration
-
-For plugin configuration, you may focus on succinct, declarative configuration.
-
-[Supported configuration](docs/configuration.md):
+Use declarative config for services, hooks, modules, and lifecycle handlers:
 
 ```php
 <?php
 
+use WPDesk\Init\Module\RequirementsModule;
+
 return [
-	'hooks' => 'config/hooks',
-	'services' => 'config/services.php',
+	'services' => __DIR__ . '/config/services.php',
+	'hooks' => __DIR__ . '/config/hooks',
 	'cache_path' => 'generated',
+	'environment' => 'production',
 	'modules' => [
-		\WPDesk\Init\Module\RequirementsModule::class => [
+		RequirementsModule::class => [
 			'requirements' => [
 				'plugins' => [
 					[
@@ -62,21 +49,26 @@ return [
 			],
 		],
 	],
+	'activation' => [
+		static function ( \Vendor\Plugin\Migrations $migrations ): void {
+			$migrations->migrate();
+		},
+	],
+	'deactivation' => [
+		\Vendor\Plugin\Hooks\CleanupOnDeactivate::class,
+	],
 ];
 ```
 
-## Usage with `wpdesk/wp-builder`
+Main concepts:
 
-As a legacy support, it is possible to power up your existing codebase, which uses
-`wpdesk/wp-builder` with this library capabilities, as autowired services.
+- `Hookable` classes are the default way to register WordPress hooks.
+- Callable bindings are a narrow convenience for one-shot boot or lifecycle work.
+- Modules are explicit opt-in bootstrap features with module-owned config.
+- Boot gates stop the plugin before normal hook registration when requirements fail.
+- Activation and deactivation are handled explicitly through `activation` and `deactivation` config.
 
-The only change, you have to do (besides configuration of services) is adding _hookables_ as class
-string, ready for handling by DI container:
-
-```diff
-- $this->add_hookable( new \WPDesk\Init\Provider\I18n() );
-+ $this->add_hookable( \WPDesk\Init\Provider\I18n::class );
-```
+See [configuration](docs/configuration.md) for the full config shape and [legacy migration](docs/legacy.md) for `wp-builder` migration.
 
 ## Credits
 

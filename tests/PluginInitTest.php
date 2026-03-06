@@ -5,13 +5,23 @@ namespace WPDesk\Init\Tests;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
+use Psr\Container\ContainerInterface;
+use WPDesk\Init\Binding\Loader\ArrayDefinitions;
+use WPDesk\Init\Binding\Loader\BindingDefinitions;
+use WPDesk\Init\Binding\Loader\EmptyDefinitions;
+use WPDesk\Init\Bootstrap\BootGate;
+use WPDesk\Init\Bootstrap\BootstrapContext;
+use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Init;
+use WPDesk\Init\Module\Module;
 
 final class PluginInitTest extends TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
+		Functions\when( 'register_activation_hook' )->justReturn( true );
+		Functions\when( 'register_deactivation_hook' )->justReturn( true );
 		Functions\when( 'plugin_dir_path' )->alias( 'dirname' );
 		Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.org/plugin/' );
 		Functions\when( 'plugin_basename' )->returnArg();
@@ -48,29 +58,28 @@ PHP
 		$this->addToAssertionCount( 1 );
 	}
 
-	public function test_boot_supports_legacy_hook_resources_path_key(): void {
+	public function test_boot_rejects_list_style_module_configuration(): void {
 		$plugin_file = $this->createTempFile(
-			'legacy-key-plugin.php',
+			'list-style-modules.php',
 			<<<'PHP'
 <?php
 /**
- * Plugin Name: Legacy key plugin
+ * Plugin Name: List style modules
  * Version: 1.0.0
  */
 PHP
 		);
 
-		Functions\expect( 'add_action' )
-			->once()
-			->with( 'plugins_loaded', \Mockery::type( \Closure::class ), -50 );
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'class-string identifiers' );
 
 		Init::setup(
 			[
-				'hook_resources_path' => __DIR__ . '/Fixtures/hook-bindings',
+				'modules' => [
+					\WPDesk\Init\Module\BuiltinModule::class,
+				],
 			]
 		)->boot( $plugin_file );
-
-		$this->addToAssertionCount( 1 );
 	}
 
 	public function test_boot_rejects_invalid_module_config_values(): void {
@@ -119,5 +128,181 @@ PHP
 				],
 			]
 		)->boot( $plugin_file );
+	}
+
+	public function test_boot_registers_activation_and_deactivation_handlers(): void {
+		$plugin_file = $this->createTempFile(
+			'lifecycle-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Lifecycle plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		$activation_calls = 0;
+		$deactivation_calls = 0;
+		$activation_callback = null;
+		$deactivation_callback = null;
+
+		Functions\when( 'register_activation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$activation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$activation_callback = $callback;
+			}
+		);
+
+		Functions\when( 'register_deactivation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$deactivation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$deactivation_callback = $callback;
+			}
+		);
+
+		Init::setup(
+			[
+				'activation' => static function () use ( &$activation_calls ): void {
+					$activation_calls++;
+				},
+				'deactivation' => static function () use ( &$deactivation_calls ): void {
+					$deactivation_calls++;
+				},
+			]
+		)->boot( $plugin_file );
+
+		$this->assertInstanceOf( \Closure::class, $activation_callback );
+		$this->assertInstanceOf( \Closure::class, $deactivation_callback );
+
+		$activation_callback();
+		$deactivation_callback();
+
+		$this->assertSame( 1, $activation_calls );
+		$this->assertSame( 1, $deactivation_calls );
+	}
+
+	public function test_boot_gate_can_stop_normal_hook_registration(): void {
+		$plugin_file = $this->createTempFile(
+			'gate-stop-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Gate stop plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		Functions\expect( 'add_action' )->never();
+
+		Init::setup(
+			[
+				'modules' => [
+					StopBootModule::class => [],
+				],
+			]
+		)->boot( $plugin_file );
+
+		$this->addToAssertionCount( 1 );
+	}
+
+	public function test_boot_gate_allows_normal_hook_registration_when_it_passes(): void {
+		$plugin_file = $this->createTempFile(
+			'gate-pass-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Gate pass plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		Functions\expect( 'add_action' )
+			->once()
+			->with( 'plugins_loaded', \Mockery::type( \Closure::class ), -50 );
+
+		Init::setup(
+			[
+				'modules' => [
+					PassBootModule::class => [],
+				],
+			]
+		)->boot( $plugin_file );
+
+		$this->addToAssertionCount( 1 );
+	}
+}
+
+final class StopBootModule implements Module {
+
+	public function build( ContainerBuilder $builder, BootstrapContext $context ): void {
+	}
+
+	public function bindings( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new ArrayDefinitions(
+			[
+				'plugins_loaded' => static function (): void {
+				},
+			]
+		);
+	}
+
+	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
+	}
+
+	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
+	}
+
+	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
+		return [ new ToggleGate( false ) ];
+	}
+}
+
+final class PassBootModule implements Module {
+
+	public function build( ContainerBuilder $builder, BootstrapContext $context ): void {
+	}
+
+	public function bindings( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new ArrayDefinitions(
+			[
+				'plugins_loaded' => static function (): void {
+				},
+			]
+		);
+	}
+
+	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
+	}
+
+	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
+	}
+
+	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
+		return [ new ToggleGate( true ) ];
+	}
+}
+
+final class ToggleGate implements BootGate {
+
+	private bool $can_boot;
+
+	public function __construct( bool $can_boot ) {
+		$this->can_boot = $can_boot;
+	}
+
+	public function can_boot(): bool {
+		return $this->can_boot;
+	}
+
+	public function on_failure(): void {
 	}
 }

@@ -8,10 +8,8 @@ namespace WPDesk\Init;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Module\BuiltinModule;
 use WPDesk\Init\Module\ConfigModule;
-use WPDesk\Init\Module\LegacyBuilderModule;
 use WPDesk\Init\Module\Module;
 use WPDesk\Init\Module\ModuleCollection;
-use WPDesk\Init\Module\RequirementsModule;
 use WPDesk\Init\Util\PhpFileLoader;
 
 final class Init {
@@ -92,14 +90,6 @@ final class Init {
 			$modules->add( $module );
 		}
 
-		if ( $this->config->get( 'legacy', false ) && ! $modules->has( LegacyBuilderModule::class ) ) {
-			$modules->add( new LegacyBuilderModule() );
-		}
-
-		if ( $this->config->has( 'requirements' ) && ! $modules->has( RequirementsModule::class ) ) {
-			$modules->add( new RequirementsModule() );
-		}
-
 		return $modules;
 	}
 
@@ -107,15 +97,10 @@ final class Init {
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function normalized_module_config(): array {
-		$modules = (array) $this->config->get( 'modules', [] );
+		$modules    = (array) $this->config->get( 'modules', [] );
 		$normalized = [];
 
 		foreach ( $modules as $module_class => $module_config ) {
-			if ( is_int( $module_class ) ) {
-				$module_class = $module_config;
-				$module_config = [];
-			}
-
 			if ( ! is_string( $module_class ) || $module_class === '' ) {
 				throw new \LogicException( 'Configured module keys must be class-string identifiers.' );
 			}

@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
+use WPDesk\Init\Binding\Loader\EmptyDefinitions;
 use WPDesk\Init\Bootstrap\BootstrapContext;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Extension\CommonBinding\WPDeskTrackerBridge;
@@ -48,6 +49,14 @@ final class WPDeskTrackerModule implements Module {
 				'plugins_loaded' => WPDeskTrackerBridge::class,
 			]
 		);
+	}
+
+	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
+	}
+
+	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
 	}
 
 	public function gates( ContainerInterface $container, BootstrapContext $context ): array {

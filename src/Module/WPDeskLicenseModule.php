@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
+use WPDesk\Init\Binding\Loader\EmptyDefinitions;
 use WPDesk\Init\Bootstrap\BootstrapContext;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Extension\CommonBinding\WPDeskLicenseBridge;
@@ -21,8 +22,8 @@ final class WPDeskLicenseModule implements Module {
 			throw new \LogicException( 'WPDeskLicenseModule requires "wpdesk/wp-wpdesk-license" to be installed.' );
 		}
 
-		$config = $context->module_config( self::class );
-		$product_id = $config['product_id'] ?? $context->config()->get( 'product_id' );
+		$config     = $context->module_config( self::class );
+		$product_id = $config['product_id'] ?? null;
 		if ( ! is_string( $product_id ) || $product_id === '' ) {
 			throw new \LogicException( 'WPDeskLicenseModule requires "product_id" in module config.' );
 		}
@@ -30,7 +31,7 @@ final class WPDeskLicenseModule implements Module {
 		$definitions = [
 			WPDeskLicenseBridge::class => ( new AutowireDefinitionHelper() )
 				->constructorParameter( 'product_id', $product_id )
-				->constructorParameter( 'shops', (array) ( $config['shops'] ?? $context->config()->get( 'shops', [] ) ) ),
+				->constructorParameter( 'shops', (array) ( $config['shops'] ?? [] ) ),
 		];
 
 		if ( class_exists( \WPDesk\Logger\SimpleLoggerFactory::class ) ) {
@@ -60,5 +61,13 @@ final class WPDeskLicenseModule implements Module {
 
 	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
 		return [];
+	}
+
+	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
+	}
+
+	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		return new EmptyDefinitions();
 	}
 }

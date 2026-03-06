@@ -1,62 +1,19 @@
-# Configuration
+## Configuration
 
-`wp-init` relies on declarative configuration, which encapsulates process of attaching hooks to
-WordPress life cycle and provides some additional features, like filling DI container with your
-services definitions.
-
-## `hooks`
-
-Pass a path to the file/directory with your hook actions. Configuration accepts any valid path
-string, relative or absolute, either `hook_providers` or `__DIR__ . '/hook_providers/plugins_loaded.php'`
-
-Files are mapped to hooks by name, so `woocommerce_init.php` is registered inside `woocommerce_init`
-action. The exception is `index.php` file which is flushed immediately.
-
-Example of a hook resource content:
-
-```php
-<?php
-// plugins_loaded.php
-
-return [
-	MyCoolTitleChanger::class,
-	AnotherHookAction::class,
-	function ( Migarator $migrator ) {
-		// You can even use a closure, to execute simple actions.
-		// Arguments are injected by DI container.
-		$migrator->migrate();
-	}
-];
-```
-
-`hook_resources_path` is still accepted as a compatibility key, but `hooks` is the canonical name for `1.0`.
-
-## `services`
-
-As you add more services with increasing complexity, you will need to provide some kind of
-definitions for a DI container to create objects. Pass a path to a file, which will hold such
-definitions. Refer to [php-di documentation](https://php-di.org/doc/definitions.html) for more
-information on such file content.
-
-`wp-init` loads its own prefixed helper functions for PHP-DI during bootstrap, so plugin bootstrap files do not need to load helper functions manually.
-
-## `cache_path`
-
-Plugin header data and compiled DI container is cached in a directory specified by this
-setting. Defaults to `generated`.
-
-## `modules`
-
-Modules are configured as an associative array where the key is a module class name and the value is its configuration array.
-
-Example:
+`wp-init` uses one declarative config file. The canonical `1.0` shape is:
 
 ```php
 <?php
 
+use WPDesk\Init\Module\LegacyBuilderModule;
 use WPDesk\Init\Module\RequirementsModule;
 
 return [
+	'services' => __DIR__ . '/config/services.php',
+	'hooks' => __DIR__ . '/config/hooks',
+	'cache_path' => 'generated',
+	'environment' => 'production',
+	'debug' => false,
 	'modules' => [
 		RequirementsModule::class => [
 			'requirements' => [
@@ -68,40 +25,143 @@ return [
 				],
 			],
 		],
+		LegacyBuilderModule::class => [
+			'plugin_class_name' => \Vendor\Plugin\LegacyPlugin::class,
+		],
+	],
+	'activation' => [
+		static function ( \Vendor\Plugin\Migrations $migrations ): void {
+			$migrations->migrate();
+		},
+	],
+	'deactivation' => [
+		\Vendor\Plugin\Hooks\CleanupOnDeactivate::class,
 	],
 ];
 ```
 
-`null` is also accepted as a module configuration value and is normalized to an empty array.
+## `services`
+
+Path or list of paths to PHP-DI definition files. Paths may be relative or absolute.
+
+`wp-init` loads its own prefixed PHP-DI helper functions during bootstrap, so plugin bootstrap files do not need to load helper helpers manually.
+
+## `hooks`
+
+Path to a file or directory with hook definitions.
+
+Files are mapped to hooks by filename:
+
+- `plugins_loaded.php` binds on `plugins_loaded`
+- `woocommerce_init.php` binds on `woocommerce_init`
+- `index.php` is flushed immediately during the deferred binding pass
+
+Example hook file:
+
+```php
+<?php
+
+return [
+	\Vendor\Plugin\Hooks\LoadTextdomain::class,
+	static function ( \Vendor\Plugin\Migrations $migrations ): void {
+		$migrations->migrate();
+	},
+];
+```
+
+Hookables are the normal case. Callables are supported as a narrow bridge and are resolved through the container.
+
+## `modules`
+
+Modules are explicit opt-in bootstrap features. The key is the module class name and the value is its config.
+
+Rules:
+
+- keys must be module class strings
+- values must be arrays or `null`
+- `null` is normalized to `[]`
+- array order is preserved
+
+Example:
+
+```php
+'modules' => [
+	\WPDesk\Init\Module\RequirementsModule::class => [
+		'requirements' => [
+			'php' => '>=8.1',
+		],
+	],
+	\WPDesk\Init\Module\WPDeskTrackerModule::class => [],
+]
+```
+
+Module-specific config lives under that module entry. Root config is not used as a fallback for module options.
+
+## `activation`
+
+Explicit activation handlers. Accepts a single callable/class definition or an array of definitions.
+
+Supported entries are the same strict binding shapes used for normal bootstrap bindings:
+
+- hookable class strings
+- callables with container-resolvable object parameters only
+
+Use this for work such as database migrations or setup that should happen on plugin activation.
+
+## `deactivation`
+
+Explicit deactivation handlers. Accepts the same shapes as `activation`.
+
+Use this for cleanup work that must happen on plugin deactivation.
+
+## `cache_path`
+
+Directory used for cached plugin header data and compiled DI container. Defaults to `generated`.
 
 ## `environment`
 
-Controls bootstrap mode. Supported values are `production` and `development`.
+Controls bootstrap mode. Supported values are:
 
-If omitted, `wp-init` resolves the environment in this order:
+- `production`
+- `development`
+
+If omitted, `wp-init` resolves environment in this order:
 
 1. explicit config value
 2. `wp_get_environment_type()`
 3. plugin version containing `dev`
-4. fallback to `production`
+4. `production`
+
+`development` disables container compilation.
 
 ## `debug`
 
-Enables additional diagnostics. When omitted, `development` environment implies debug mode.
+Controls diagnostic verbosity. If omitted, `development` implies debug mode.
 
-## Requirements and Legacy Modules
+`debug` does not make invalid config acceptable. Invalid config still fails loudly.
 
-The old root-level `requirements` and `plugin_class_name` keys are still accepted for compatibility.
+## Boot Gates
 
-Preferred `1.0` direction:
+Boot gates are provided by modules. They run after the container is initialized and before normal hook bindings are registered.
 
-- requirements go into `RequirementsModule` config
-- legacy builder support is enabled by adding `LegacyBuilderModule` to `modules`
+If any gate fails:
 
-## `plugin_class_name`
+- the gate handles its own failure behavior
+- normal plugin boot stops
+- activation and deactivation callbacks remain registered
 
-**This setting only works when `wpdesk/wp-builder` is installed.**
+## Legacy Builder Module
 
-When a plugin is used in [legacy mode](legacy.md), `plugin_class_name` is used to create an instance
-of main plugin class. This setting is required to enable legacy mode. Despite that,
-`WPDesk\Init\Plugin\Plugin` is still accessible to your services.
+Legacy support is explicit. To enable `wpdesk/wp-builder` integration, add `LegacyBuilderModule` to `modules` and configure it directly:
+
+```php
+'modules' => [
+	\WPDesk\Init\Module\LegacyBuilderModule::class => [
+		'plugin_class_name' => \Vendor\Plugin\LegacyPlugin::class,
+		'product_id' => 'my-product',
+		'shops' => [ 'pl', 'com' ],
+	],
+]
+```
+
+See [legacy migration](legacy.md) for the migration path.

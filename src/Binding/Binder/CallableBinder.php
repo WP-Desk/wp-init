@@ -26,8 +26,8 @@ final class CallableBinder implements ComposableBinder {
 	}
 
 	public function bind( Definition $def ): void {
-		$callable = $this->normalize_callable( $def->value() );
-		$ref      = new \ReflectionFunction( $callable );
+		$callable   = $this->normalize_callable( $def->value() );
+		$ref        = new \ReflectionFunction( $callable );
 		$parameters = [];
 
 		foreach ( $ref->getParameters() as $ref_param ) {

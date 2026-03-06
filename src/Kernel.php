@@ -9,7 +9,8 @@ use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Binder\CallableBinder;
 use WPDesk\Init\Binding\Binder\CompositeBinder;
 use WPDesk\Init\Binding\Binder\HookableBinder;
-use WPDesk\Init\Binding\Binder\StoppableBinder;
+use WPDesk\Init\Binding\Definition;
+use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Binding\Loader\ClusteredLoader;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
 use WPDesk\Init\Binding\Loader\OrderedBindingLoader;
@@ -86,6 +87,8 @@ final class Kernel {
 		$container->set( Configuration::class, $this->config );
 		$container->set( BootstrapContext::class, $context );
 
+		$this->register_lifecycle_hooks( $container, $context );
+
 		if ( ! $this->run_gates( $container, $context ) ) {
 			return;
 		}
@@ -152,7 +155,7 @@ final class Kernel {
 		$driver = new GenericDriver(
 			$loader,
 			new CompositeBinder(
-				new StoppableBinder( new HookableBinder( $container ), $container ),
+				new HookableBinder( $container ),
 				new CallableBinder( $container )
 			)
 		);
@@ -181,20 +184,23 @@ final class Kernel {
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function normalized_module_config(): array {
-		$modules = (array) $this->config->get( 'modules', [] );
+		$modules    = (array) $this->config->get( 'modules', [] );
 		$normalized = [];
 
 		foreach ( $modules as $module_class => $module_config ) {
-			if ( is_int( $module_class ) ) {
-				$module_class = $module_config;
+			if ( ! is_string( $module_class ) || $module_class === '' ) {
+				throw new \LogicException( 'Configured module keys must be class-string identifiers.' );
+			}
+
+			if ( $module_config === null ) {
 				$module_config = [];
 			}
 
-			if ( ! is_string( $module_class ) || $module_class === '' ) {
-				continue;
+			if ( ! is_array( $module_config ) ) {
+				throw new \LogicException( sprintf( 'Configuration for module "%s" must be an array or null.', $module_class ) );
 			}
 
-			$normalized[ $module_class ] = is_array( $module_config ) ? $module_config : [];
+			$normalized[ $module_class ] = $module_config;
 		}
 
 		return $normalized;
@@ -256,5 +262,67 @@ final class Kernel {
 		}
 
 		return $gates;
+	}
+
+	private function register_lifecycle_hooks( ContainerInterface $container, BootstrapContext $context ): void {
+		$this->register_activation_hook( $container, $context );
+		$this->register_deactivation_hook( $container, $context );
+	}
+
+	private function register_activation_hook( ContainerInterface $container, BootstrapContext $context ): void {
+		$definitions = $this->collect_lifecycle_definitions( $container, $context, 'activation' );
+		if ( $definitions === [] ) {
+			return;
+		}
+
+		$binder = $this->lifecycle_binder( $container );
+		register_activation_hook(
+			$this->filename,
+			static function () use ( $binder, $definitions ): void {
+				foreach ( $definitions as $definition ) {
+					$binder->bind( $definition );
+				}
+			}
+		);
+	}
+
+	private function register_deactivation_hook( ContainerInterface $container, BootstrapContext $context ): void {
+		$definitions = $this->collect_lifecycle_definitions( $container, $context, 'deactivation' );
+		if ( $definitions === [] ) {
+			return;
+		}
+
+		$binder = $this->lifecycle_binder( $container );
+		register_deactivation_hook(
+			$this->filename,
+			static function () use ( $binder, $definitions ): void {
+				foreach ( $definitions as $definition ) {
+					$binder->bind( $definition );
+				}
+			}
+		);
+	}
+
+	/**
+	 * @return Definition[]
+	 */
+	private function collect_lifecycle_definitions( ContainerInterface $container, BootstrapContext $context, string $method ): array {
+		$definitions = [];
+
+		foreach ( $this->modules as $module ) {
+			$loader = $module->{$method}( $container, $context );
+			foreach ( $loader->load() as $definition ) {
+				$definitions[] = $definition;
+			}
+		}
+
+		return $definitions;
+	}
+
+	private function lifecycle_binder( ContainerInterface $container ): CompositeBinder {
+		return new CompositeBinder(
+			new HookableBinder( $container ),
+			new CallableBinder( $container )
+		);
 	}
 }

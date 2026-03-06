@@ -6,6 +6,7 @@ namespace WPDesk\Init\Module;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\BindingDefinitions;
+use WPDesk\Init\Binding\Loader\EmptyDefinitions;
 use WPDesk\Init\Binding\Loader\FilesystemDefinitions;
 use WPDesk\Init\Bootstrap\BootstrapContext;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
@@ -25,14 +26,32 @@ final class ConfigModule implements Module {
 	}
 
 	public function bindings( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		$hooks_path = $context->config()->get( 'hooks', $context->config()->get( 'hook_resources_path' ) );
+		$hooks_path = $context->config()->get( 'hooks' );
 		if ( $hooks_path === null ) {
-			return new ArrayDefinitions( [] );
+			return new EmptyDefinitions();
 		}
 
 		return new FilesystemDefinitions(
 			( new Path( (string) $hooks_path ) )->absolute( $context->plugin()->get_path() )
 		);
+	}
+
+	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		$activation = $context->config()->get( 'activation' );
+		if ( $activation === null ) {
+			return new EmptyDefinitions();
+		}
+
+		return new ArrayDefinitions( is_array( $activation ) ? $activation : [ $activation ] );
+	}
+
+	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		$deactivation = $context->config()->get( 'deactivation' );
+		if ( $deactivation === null ) {
+			return new EmptyDefinitions();
+		}
+
+		return new ArrayDefinitions( is_array( $deactivation ) ? $deactivation : [ $deactivation ] );
 	}
 
 	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
