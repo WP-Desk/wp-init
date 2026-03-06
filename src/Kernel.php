@@ -12,7 +12,6 @@ use WPDesk\Init\Binding\Binder\HookableBinder;
 use WPDesk\Init\Binding\Binder\StoppableBinder;
 use WPDesk\Init\Binding\Loader\ClusteredLoader;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
-use WPDesk\Init\Binding\Loader\DebugBindingLoader;
 use WPDesk\Init\Binding\Loader\OrderedBindingLoader;
 use WPDesk\Init\Bootstrap\BootGate;
 use WPDesk\Init\Bootstrap\BootstrapContext;
@@ -32,6 +31,9 @@ use WPDesk\Init\Util\Path;
 use WPDesk\Init\Util\PhpFileDumper;
 use WPDesk\Init\Util\PhpFileLoader;
 
+/**
+ * @internal Kernel is bootstrap implementation detail. Use Init as the public entrypoint.
+ */
 final class Kernel {
 
 	/** @var string|null Plugin filename. */
@@ -146,10 +148,6 @@ final class Kernel {
 		$loader = new OrderedBindingLoader(
 			new ClusteredLoader( $loader )
 		);
-
-		if ( $context->is_debug() ) {
-			$loader = new DebugBindingLoader( $loader );
-		}
 
 		$driver = new GenericDriver(
 			$loader,

@@ -72,4 +72,52 @@ PHP
 
 		$this->addToAssertionCount( 1 );
 	}
+
+	public function test_boot_rejects_invalid_module_config_values(): void {
+		$plugin_file = $this->createTempFile(
+			'invalid-module-config.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Invalid module config
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'must be an array or null' );
+
+		Init::setup(
+			[
+				'modules' => [
+					\WPDesk\Init\Module\BuiltinModule::class => 'invalid',
+				],
+			]
+		)->boot( $plugin_file );
+	}
+
+	public function test_boot_rejects_non_module_classes(): void {
+		$plugin_file = $this->createTempFile(
+			'invalid-module-class.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Invalid module class
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'must implement' );
+
+		Init::setup(
+			[
+				'modules' => [
+					\stdClass::class => [],
+				],
+			]
+		)->boot( $plugin_file );
+	}
 }

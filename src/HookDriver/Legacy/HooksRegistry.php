@@ -7,6 +7,8 @@ use Traversable;
 use WPDesk\PluginBuilder\Plugin\Hookable;
 
 /**
+ * @internal Legacy migration support detail.
+ *
  * @implements IteratorAggregate<int,Hookable>
  */
 final class HooksRegistry implements \IteratorAggregate {

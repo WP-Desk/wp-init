@@ -10,6 +10,9 @@ use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\CallableDefinition;
 use WPDesk\Init\Binding\Exception\InvalidCallableBinding;
 
+/**
+ * @internal Binding implementation detail.
+ */
 final class CallableBinder implements ComposableBinder {
 
 	private ContainerInterface $container;

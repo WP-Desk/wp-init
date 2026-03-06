@@ -6,6 +6,9 @@ use WPDesk\PluginBuilder\Plugin\Conditional;
 use WPDesk\PluginBuilder\Plugin\Hookable;
 use WPDesk\PluginBuilder\Plugin\HookablePluginDependant;
 
+/**
+ * @internal Legacy migration support detail.
+ */
 trait HookableParent {
 
 	/** @var HooksRegistry|null */

@@ -9,6 +9,9 @@ use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
 
+/**
+ * @internal Binding implementation detail.
+ */
 class HookableBinder implements ComposableBinder {
 
 	private ContainerInterface $container;

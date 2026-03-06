@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace WPDesk\Init\Binding\Definition;
 
-use IteratorAggregate;
 use Traversable;
 use WPDesk\Init\Binding\Definition;
 
 /**
+ * @internal Aggregated binding detail used by clustered loader.
+ *
  * @implements Definition<mixed>
  * @implements IteratorAggregate<mixed,Definition<mixed>>
  */

@@ -5,6 +5,9 @@ namespace WPDesk\Init\Binding\Loader;
 
 use WPDesk\Init\Binding\Definition\DefinitionCollection;
 
+/**
+ * @internal Binding loader implementation detail.
+ */
 final class ClusteredLoader implements BindingDefinitions {
 
 	private BindingDefinitions $loader;

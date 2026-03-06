@@ -7,8 +7,10 @@ namespace WPDesk\Init\Binding\Binder;
 use WPDesk\Init\Binding\Binder;
 use WPDesk\Init\Binding\ComposableBinder;
 use WPDesk\Init\Binding\Definition;
-use WPDesk\Init\Binding\Definition\HookableDefinition;
 
+/**
+ * @internal Binding implementation detail.
+ */
 final class CompositeBinder implements Binder {
 
 	/** @var ComposableBinder[] */

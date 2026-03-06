@@ -5,9 +5,10 @@ namespace WPDesk\Init\Binding\Loader;
 
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\DefinitionFactory;
-use WPDesk\Init\Configuration\ReadableConfig;
-use WPDesk\Init\Plugin\Plugin;
 
+/**
+ * @internal Binding loader implementation detail.
+ */
 class ArrayDefinitions implements BindingDefinitions {
 
 	private array $bindings;

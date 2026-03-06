@@ -3,6 +3,9 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Binding\Loader;
 
+/**
+ * @internal Binding loader implementation detail.
+ */
 final class OrderedBindingLoader implements BindingDefinitions {
 
 	private BindingDefinitions $loader;

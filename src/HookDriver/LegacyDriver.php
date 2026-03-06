@@ -6,6 +6,9 @@ namespace WPDesk\Init\HookDriver;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\HookDriver\Legacy\HooksRegistry;
 
+/**
+ * @internal Legacy hook driver implementation detail.
+ */
 final class LegacyDriver implements HookDriver {
 
 	private ContainerInterface $container;
