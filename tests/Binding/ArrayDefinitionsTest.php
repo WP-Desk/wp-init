@@ -3,8 +3,8 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\Binding;
 
-use WPDesk\Init\Binding\Definition\UnknownDefinition;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
+use WPDesk\Init\Binding\Exception\InvalidBindingDefinition;
 use WPDesk\Init\Tests\TestCase;
 
 class ArrayDefinitionsTest extends TestCase {
@@ -24,14 +24,9 @@ class ArrayDefinitionsTest extends TestCase {
 				'bind3',
 			]
 		]);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('bind1', 'hook'),
-				new UnknownDefinition('bind2', 'hook'),
-				new UnknownDefinition('bind3', 'hook2'),
-			],
-			iterator_to_array($a->load())
-		);
+
+		$this->expectException( InvalidBindingDefinition::class );
+		iterator_to_array($a->load());
 	}
 
 	public function test_loading_unstructured_bindings(): void {
@@ -40,28 +35,19 @@ class ArrayDefinitionsTest extends TestCase {
 			'bind2',
 			'hook' => 'bind3',
 		]);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('bind1', null),
-				new UnknownDefinition('bind2', null),
-				new UnknownDefinition('bind3', 'hook'),
-			],
-			iterator_to_array($a->load())
-		);
+		$this->expectException( InvalidBindingDefinition::class );
+		iterator_to_array($a->load());
+	}
 
+	public function test_loading_invalid_hook_definitions_throws(): void {
 		$a = new ArrayDefinitions([
 			'bind1',
 			'not_a_hook' => 'bind2',
 			'hook' => ['bind3'],
 		]);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('bind1', null),
-				new UnknownDefinition('bind2', 'not_a_hook'),
-				new UnknownDefinition('bind3', 'hook'),
-			],
-			iterator_to_array($a->load())
-		);
+
+		$this->expectException( InvalidBindingDefinition::class );
+		iterator_to_array($a->load());
 	}
 
 }

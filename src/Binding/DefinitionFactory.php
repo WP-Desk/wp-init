@@ -6,7 +6,7 @@ namespace WPDesk\Init\Binding;
 
 use WPDesk\Init\Binding\Definition\CallableDefinition;
 use WPDesk\Init\Binding\Definition\HookableDefinition;
-use WPDesk\Init\Binding\Definition\UnknownDefinition;
+use WPDesk\Init\Binding\Exception\InvalidBindingDefinition;
 
 class DefinitionFactory {
 
@@ -19,6 +19,12 @@ class DefinitionFactory {
 			return new CallableDefinition( $value, $hook, $options );
 		}
 
-		return new UnknownDefinition( $value, $hook, $options );
+		throw new InvalidBindingDefinition(
+			sprintf(
+				'Invalid binding for hook "%s". Expected a hookable class-string or callable, got %s.',
+				$hook ?? '<bootstrap>',
+				is_object( $value ) ? get_class( $value ) : gettype( $value )
+			)
+		);
 	}
 }

@@ -26,9 +26,14 @@ class FilesystemDefinitions implements BindingDefinitions {
 			foreach ( $this->path->read_directory() as $filename ) {
 				yield from $this->load_from_file( $filename );
 			}
-		} else {
-			yield from $this->load_from_file( $this->path );
+			return;
 		}
+
+		if ( ! $this->path->is_file() ) {
+			throw new \InvalidArgumentException( sprintf( 'Path "%s" is neither a file nor a directory.', (string) $this->path ) );
+		}
+
+		yield from $this->load_from_file( $this->path );
 	}
 
 	private function load_from_file( Path $filename ): iterable {
@@ -42,6 +47,6 @@ class FilesystemDefinitions implements BindingDefinitions {
 			$hooks = [ $filename->get_filename_without_extension() => $hooks ];
 		}
 
-		yield from (new ArrayDefinitions( $hooks ) )->load();
+		yield from ( new ArrayDefinitions( $hooks, $this->def_factory ) )->load();
 	}
 }

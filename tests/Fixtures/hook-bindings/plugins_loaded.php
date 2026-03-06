@@ -1,6 +1,6 @@
 <?php
 
 return [
-	'binding1',
-	'binding2',
+	static function (): void {},
+	static function (): void {},
 ];

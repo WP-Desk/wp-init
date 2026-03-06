@@ -1,5 +1,5 @@
 <?php
 
 return [
-	'hook1' => 'binding',
+	'hook1' => static function (): void {},
 ];

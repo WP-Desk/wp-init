@@ -4,36 +4,12 @@ declare(strict_types=1);
 
 namespace WPDesk\Init\Plugin;
 
-final class Header implements \ArrayAccess {
+final class Header {
 
 	private array $header_data;
 
 	public function __construct( array $header_data ) {
 		$this->header_data = $header_data;
-	}
-
-	public function offsetExists( $offset ): bool {
-		if ( ! is_string( $offset ) ) {
-			throw new \InvalidArgumentException( 'Header key must be a string' );
-		}
-
-		return $this->has( $offset );
-	}
-
-	public function offsetGet( $offset ) {
-		if ( ! is_string( $offset ) ) {
-			throw new \InvalidArgumentException( 'Header key must be a string' );
-		}
-
-		return $this->get( $offset );
-	}
-
-	public function offsetSet( $offset, $value ): void {
-		throw new \BadMethodCallException( 'Header cannot be modified' );
-	}
-
-	public function offsetUnset( $offset ): void {
-		throw new \BadMethodCallException( 'Header cannot be modified' );
 	}
 
 	public function get( string $key ) {

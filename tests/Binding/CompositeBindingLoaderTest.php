@@ -3,9 +3,9 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\Binding;
 
-use WPDesk\Init\Binding\Definition\UnknownDefinition;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
+use WPDesk\Init\Binding\Exception\InvalidBindingDefinition;
 use WPDesk\Init\Tests\TestCase;
 
 class CompositeBindingLoaderTest extends TestCase {
@@ -33,14 +33,9 @@ class CompositeBindingLoaderTest extends TestCase {
 				]
 			)
 		);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('bind1', 'hook'),
-				new UnknownDefinition('bind2', 'hook'),
-				new UnknownDefinition('bind3', 'hook2'),
-			],
-			iterator_to_array($a->load(), false)
-		);
+
+		$this->expectException( InvalidBindingDefinition::class );
+		iterator_to_array($a->load(), false);
 	}
 
 	public function test_loading_unstructured_bindings(): void {
@@ -55,15 +50,11 @@ class CompositeBindingLoaderTest extends TestCase {
 				'hook' => 'bind3',
 			])
 		);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('bind1', null),
-				new UnknownDefinition('bind2', null),
-				new UnknownDefinition('bind3', 'hook'),
-			],
-			iterator_to_array($a->load(), false)
-		);
+		$this->expectException( InvalidBindingDefinition::class );
+		iterator_to_array($a->load(), false);
+	}
 
+	public function test_loading_invalid_hook_definitions_throws(): void {
 		$a = new CompositeBindingLoader(
 			new ArrayDefinitions([
 				'bind1',
@@ -75,13 +66,8 @@ class CompositeBindingLoaderTest extends TestCase {
 			'hook' => ['bind3'],
 			]),
 		);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('bind1', null),
-				new UnknownDefinition('bind2', 'not_a_hook'),
-				new UnknownDefinition('bind3', 'hook'),
-			],
-			iterator_to_array($a->load(), false)
-		);
+
+		$this->expectException( InvalidBindingDefinition::class );
+		iterator_to_array($a->load(), false);
 	}
 }
