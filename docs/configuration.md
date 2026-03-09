@@ -29,6 +29,9 @@ return [
 			'plugin_class_name' => \Vendor\Plugin\LegacyPlugin::class,
 		],
 	],
+	'gates' => [
+		\Vendor\Plugin\Infrastructure\CustomCompatibilityGate::class,
+	],
 	'activation' => [
 		static function ( \Vendor\Plugin\Migrations $migrations ): void {
 			$migrations->migrate();
@@ -97,6 +100,20 @@ Example:
 
 Module-specific config lives under that module entry. Root config is not used as a fallback for module options.
 
+## `gates`
+
+Explicit boot gates for plugin-specific viability checks.
+
+Rules:
+
+- values must be gate class strings
+- gate classes must implement `WPDesk\Init\Bootstrap\BootGate`
+- gates run after the container is initialized and before normal hook bindings are registered
+
+Use gates when the whole plugin must remain active but not boot, for example because a required dependency version is not compatible. Gates may render notices in `on_failure()`.
+
+Requirements checks stay ergonomic through `RequirementsModule`; that module provides its own gate internally.
+
 ## `activation`
 
 Explicit activation handlers. Accepts a single callable/class definition or an array of definitions.
@@ -142,7 +159,7 @@ Controls diagnostic verbosity. If omitted, `development` implies debug mode.
 
 ## Boot Gates
 
-Boot gates are provided by modules. They run after the container is initialized and before normal hook bindings are registered.
+Boot gates may be configured directly through `gates` or provided by modules. They run after the container is initialized and before normal hook bindings are registered.
 
 If any gate fails:
 

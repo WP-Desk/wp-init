@@ -49,6 +49,9 @@ return [
 			],
 		],
 	],
+	'gates' => [
+		\Vendor\Plugin\Infrastructure\CustomCompatibilityGate::class,
+	],
 	'activation' => [
 		static function ( \Vendor\Plugin\Migrations $migrations ): void {
 			$migrations->migrate();
@@ -65,7 +68,7 @@ Main concepts:
 - `Hookable` classes are the default way to register WordPress hooks.
 - Callable bindings are a narrow convenience for one-shot boot or lifecycle work.
 - Modules are explicit opt-in bootstrap features with module-owned config.
-- Boot gates stop the plugin before normal hook registration when requirements fail.
+- Boot gates stop the plugin before normal hook registration when viability checks fail.
 - Activation and deactivation are handled explicitly through `activation` and `deactivation` config.
 
 See [configuration](docs/configuration.md) for the full config shape and [legacy migration](docs/legacy.md) for `wp-builder` migration.

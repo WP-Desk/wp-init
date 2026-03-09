@@ -10,7 +10,6 @@ use WPDesk\Init\Binding\Binder\CallableBinder;
 use WPDesk\Init\Binding\Binder\CompositeBinder;
 use WPDesk\Init\Binding\Binder\HookableBinder;
 use WPDesk\Init\Binding\Definition;
-use WPDesk\Init\Binding\Loader\BindingDefinitions;
 use WPDesk\Init\Binding\Loader\ClusteredLoader;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
 use WPDesk\Init\Binding\Loader\OrderedBindingLoader;

@@ -5,15 +5,8 @@ namespace WPDesk\Init\Tests;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
-use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Loader\ArrayDefinitions;
-use WPDesk\Init\Binding\Loader\BindingDefinitions;
-use WPDesk\Init\Binding\Loader\EmptyDefinitions;
 use WPDesk\Init\Bootstrap\BootGate;
-use WPDesk\Init\Bootstrap\BootstrapContext;
-use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Init;
-use WPDesk\Init\Module\Module;
 
 final class PluginInitTest extends TestCase {
 
@@ -200,8 +193,8 @@ PHP
 
 		Init::setup(
 			[
-				'modules' => [
-					StopBootModule::class => [],
+				'gates' => [
+					StopBootGate::class,
 				],
 			]
 		)->boot( $plugin_file );
@@ -227,80 +220,53 @@ PHP
 
 		Init::setup(
 			[
-				'modules' => [
-					PassBootModule::class => [],
-				],
+				'hooks' => __DIR__ . '/Fixtures/hook-bindings',
+				'gates' => [ PassBootGate::class ],
 			]
 		)->boot( $plugin_file );
 
 		$this->addToAssertionCount( 1 );
 	}
-}
 
-final class StopBootModule implements Module {
-
-	public function build( ContainerBuilder $builder, BootstrapContext $context ): void {
-	}
-
-	public function bindings( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new ArrayDefinitions(
-			[
-				'plugins_loaded' => static function (): void {
-				},
-			]
+	public function test_boot_rejects_non_gate_classes(): void {
+		$plugin_file = $this->createTempFile(
+			'invalid-gate-class.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Invalid gate class
+ * Version: 1.0.0
+ */
+PHP
 		);
-	}
 
-	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new EmptyDefinitions();
-	}
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'must implement' );
 
-	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new EmptyDefinitions();
-	}
-
-	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
-		return [ new ToggleGate( false ) ];
-	}
-}
-
-final class PassBootModule implements Module {
-
-	public function build( ContainerBuilder $builder, BootstrapContext $context ): void {
-	}
-
-	public function bindings( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new ArrayDefinitions(
+		Init::setup(
 			[
-				'plugins_loaded' => static function (): void {
-				},
+				'gates' => [
+					\stdClass::class,
+				],
 			]
-		);
-	}
-
-	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new EmptyDefinitions();
-	}
-
-	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new EmptyDefinitions();
-	}
-
-	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
-		return [ new ToggleGate( true ) ];
+		)->boot( $plugin_file );
 	}
 }
 
-final class ToggleGate implements BootGate {
-
-	private bool $can_boot;
-
-	public function __construct( bool $can_boot ) {
-		$this->can_boot = $can_boot;
-	}
+final class StopBootGate implements BootGate {
 
 	public function can_boot(): bool {
-		return $this->can_boot;
+		return false;
+	}
+
+	public function on_failure(): void {
+	}
+}
+
+final class PassBootGate implements BootGate {
+
+	public function can_boot(): bool {
+		return true;
 	}
 
 	public function on_failure(): void {
