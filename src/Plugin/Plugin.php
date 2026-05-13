@@ -9,66 +9,49 @@ final class Plugin {
 	 * Plugin basename.
 	 *
 	 * Ex: plugin-name/plugin-name.php
-	 *
-	 * @var string
 	 */
-	private $basename;
+	private string $basename;
 
 	/**
 	 * Absolute path to the main plugin directory.
-	 *
-	 * @var string
 	 */
-	private $directory;
+	private string $directory;
 
 	/**
 	 * Plugin name to display.
-	 *
-	 * @var string
 	 */
-	private $name;
+	private string $name;
 
 	/**
 	 * Absolute path to the main plugin file.
-	 *
-	 * @var string
 	 */
-	private $file;
+	private string $file;
 
 	/**
 	 * Plugin identifier.
-	 *
-	 * @var string
 	 */
-	private $slug;
+	private string $slug;
 
 	/**
 	 * URL to the main plugin directory.
-	 *
-	 * @var string
 	 */
-	private $url;
+	private string $url;
 
 	/**
 	 * Plugin version string.
-	 *
-	 * @var string
 	 */
-	private $version;
+	private string $version;
 
-	/**
-	 * @var Header
-	 */
-	private $header;
+	private Header $header;
 
 	public function __construct( string $file, Header $header ) {
 		$this->file      = $file;
-		$this->name      = $header['Name'];
-		$this->version   = $header['Version'] ?? '0.0.0';
+		$this->name      = $header->get( 'Name' );
+		$this->version   = $header->has( 'Version' ) ? $header->get( 'Version' ) : '0.0.0';
 		$this->basename  = plugin_basename( $file );
 		$this->directory = rtrim( plugin_dir_path( $file ), '/' ) . '/';
 		$this->url       = rtrim( plugin_dir_url( $file ), '/' ) . '/';
-		$this->slug      = $header['TextDomain'] ?? basename( $this->directory );
+		$this->slug      = $header->has( 'TextDomain' ) ? $header->get( 'TextDomain' ) : basename( $this->directory );
 		$this->header    = $header;
 	}
 

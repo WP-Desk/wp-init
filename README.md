@@ -1,28 +1,35 @@
 # WordPress plugin initializer
 
-Boot your plugin with superpowers.
+`wp-init` keeps WordPress plugin bootstrapping in one small entrypoint and one
+declarative config file. It wires PHP-DI services, hookable classes, optional
+modules, boot gates, and activation/deactivation handlers.
 
 ## Installation
 
-To use this library in your project, add it to `composer.json`:
+For the core bootstrap library:
 
 ```sh
 composer require wpdesk/wp-init
 ```
 
-## Creating a Plugin
+For WP Desk free plugin defaults, install the free preset package instead:
 
-Preferred method of using this library exercise Object Oriented Programming and organizing your
-actions and filters in a multiple classes, although it isn't the only way you can interact (and
-benefit from this library).
+```sh
+composer require wpdesk/wp-init-plugin-free
+```
 
-The plugin initialization consists of the following steps:
+For WP Desk paid plugin defaults, install the paid preset package:
 
-1. Create a regular main plugin file, following [header requirements](https://developer.wordpress.org/plugins/plugin-basics/header-requirements/)
-1. Prepare DI container definitions for your services.
-1. Declare all classes included in hook binding.
+```sh
+composer require wpdesk/wp-init-plugin-paid
+```
 
-The above limits your main plugin file to a short and simple structure.
+The preset packages install `wpdesk/wp-init` and the packages required by their
+modules.
+
+## Bootstrapping a plugin
+
+Keep the main plugin file minimal:
 
 ```php
 <?php
@@ -34,46 +41,78 @@ use WPDesk\Init\Init;
 
 require __DIR__ . '/vendor/autoload.php';
 
-Init::setup('config.php')->boot();
+Init::setup( __DIR__ . '/config.php' )->boot();
 ```
 
-### Plugin configuration
-
-For plugin configuration, you may focus on succinct, declarative configuration.
-
-[Supported configuration](docs/configuration.md):
+The config file may be minimal:
 
 ```php
 <?php
 
 return [
-	'hook_resources_path' => 'config/hook_providers',
-	'services' => 'config/services.inc.php',
-	'cache_path' => 'generated',
-
-	'requirements' => [
-		'plugins' => [
-			'name' => 'woocommerce/woocommerce.php',
-			'nice_name' => 'WooCommerce',
-		]
-	],
-
-	'plugin_class_name' => 'Example\Plugin',
+	'services' => __DIR__ . '/config/services.php',
+	'hooks' => __DIR__ . '/config/hooks',
 ];
 ```
 
-## Usage with `wpdesk/wp-builder`
+WP Desk plugin presets are enabled explicitly through modules:
 
-As a legacy support, it is possible to power up your existing codebase, which uses
-`wpdesk/wp-builder` with this library capabilities, as autowired services.
+```php
+<?php
 
-The only change, you have to do (besides configuration of services) is adding _hookables_ as class
-string, ready for handling by DI container:
+use WPDesk\Init\PluginFree\FreePluginModule;
+use WPDesk\Init\PluginFree\RequirementsModule;
+use WPDesk\Init\PluginFree\WPDeskTrackerModule;
 
-```diff
-- $this->add_hookable( new \WPDesk\Init\Provider\I18n() );
-+ $this->add_hookable( \WPDesk\Init\Provider\I18n::class );
+return [
+	'services' => __DIR__ . '/config/services.php',
+	'hooks' => __DIR__ . '/config/hooks',
+	'cache_path' => 'generated',
+	'environment' => 'production',
+	'modules' => [
+		FreePluginModule::class => null,
+		RequirementsModule::class => [
+			'requirements' => [
+				'plugins' => [
+					[
+						'name' => 'woocommerce/woocommerce.php',
+						'nice_name' => 'WooCommerce',
+					],
+				],
+			],
+		],
+		WPDeskTrackerModule::class => [
+			'shops' => [
+				'default' => 'https://wpdesk.net',
+				'pl_PL' => 'https://www.wpdesk.pl',
+			],
+		],
+	],
+	'gates' => [
+		\Vendor\Plugin\Infrastructure\CustomCompatibilityGate::class,
+	],
+	'activate' => [
+		static function ( \Vendor\Plugin\Migrations $migrations ): void {
+			$migrations->migrate();
+		},
+	],
+	'deactivate' => [
+		\Vendor\Plugin\Hooks\CleanupOnDeactivate::class,
+	],
+];
 ```
+
+Main concepts:
+
+- `Hookable` classes are the primary way to register WordPress hooks.
+- Callable bindings are for small one-shot boot or lifecycle work.
+- Modules are explicit opt-in bootstrap features with module-owned config.
+- Boot gates stop the plugin before normal hook registration when viability checks fail.
+- Activation and deactivation are handled explicitly through `activate` and `deactivate` config.
+
+See [configuration](docs/configuration.md) for the full config shape,
+[legacy migration](docs/legacy.md) for `wp-builder` migration, and
+[prefixing](docs/prefixing.md) for PHP-Scoper setup.
 
 ## Credits
 

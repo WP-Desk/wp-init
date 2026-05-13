@@ -13,20 +13,21 @@ use WPDesk\Init\Binding\Definition;
  */
 final class ObservableBinder implements ComposableBinder {
 
-	/** @var Binder */
-	private $binder;
+	private Binder $binder;
 
-	private $binds_count = 0;
+	private int $binds_count = 0;
 
 	public function __construct( Binder $b ) {
 		$this->binder = $b;
 	}
 
+	/** @param Definition<mixed> $def */
 	public function bind( Definition $def ): void {
 		$this->binder->bind( $def );
-		$this->binds_count++;
+		++$this->binds_count;
 	}
 
+	/** @param Definition<mixed> $def */
 	public function can_bind( Definition $def ): bool {
 		if ( $this->binder instanceof ComposableBinder ) {
 			return $this->binder->can_bind( $def );

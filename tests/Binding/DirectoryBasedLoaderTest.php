@@ -3,46 +3,36 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\Binding;
 
-use WPDesk\Init\Binding\Definition\UnknownDefinition;
+use WPDesk\Init\Binding\Definition\CallableDefinition;
+use WPDesk\Init\Binding\Exception\InvalidBindingDefinition;
 use WPDesk\Init\Binding\Loader\FilesystemDefinitions;
-use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\Tests\TestCase;
 
 class DirectoryBasedLoaderTest extends TestCase {
 
-	public function xtest_throws_when_configuration_entry_is_missing(): void {
+	public function test_throws_when_path_does_not_exist(): void {
 		$this->expectException(\InvalidArgumentException::class);
-		$a = new FilesystemDefinitions(new Configuration([]));
-		$a->load();
+		$a = new FilesystemDefinitions('./missing');
+		iterator_to_array($a->load(), false);
 	}
 
-	public function test_loading_empty_bindings(): void {
+	public function test_loading_callable_bindings_from_directory(): void {
 		$this->initTempPlugin('hook-bindings');
 		$a = new FilesystemDefinitions('./');
 		$actual = iterator_to_array($a->load(), false);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('binding', 'hook1'),
-				new UnknownDefinition('binding1', 'plugins_loaded'),
-				new UnknownDefinition('binding2', 'plugins_loaded'),
-			],
-			$actual
-		);
+		$this->assertCount( 3, $actual );
+		$this->assertContainsOnlyInstancesOf( CallableDefinition::class, $actual );
+		$this->assertSame( 'hook1', $actual[0]->hook() );
+		$this->assertSame( 'plugins_loaded', $actual[1]->hook() );
+		$this->assertSame( 'plugins_loaded', $actual[2]->hook() );
 	}
 
-	public function test_load_illogical_bindings(): void {
+	public function test_load_invalid_bindings_throws(): void {
 		$this->initTempPlugin('borked-bindings');
 		$a = new FilesystemDefinitions('./');
 
-		$actual = iterator_to_array($a->load(), false);
-		$this->assertEquals(
-			[
-				new UnknownDefinition('binding', 'hook1'),
-				new UnknownDefinition('binding1', 'plugins_loaded'),
-				new UnknownDefinition('binding2', 'plugins_loaded'),
-			],
-			$actual
-		);
+		$this->expectException( InvalidBindingDefinition::class );
+		iterator_to_array($a->load(), false);
 	}
 
 }

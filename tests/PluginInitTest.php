@@ -3,16 +3,22 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests;
 
-use WPDesk\Init\Plugin\Plugin;
-use WPDesk\Init\Kernel;
 use Brain\Monkey;
+use Brain\Monkey\Functions;
+use WPDesk\Init\Bootstrap\BootGate;
+use WPDesk\Init\Init;
 
-class PluginInitTest extends TestCase {
+final class PluginInitTest extends TestCase {
 
 	protected function setUp(): void {
-		Monkey\setUp();
-		Monkey\Functions\when('plugin_dir_path')->alias('dirname');
 		parent::setUp();
+		Monkey\setUp();
+		Functions\when( 'register_activation_hook' )->justReturn( true );
+		Functions\when( 'register_deactivation_hook' )->justReturn( true );
+		Functions\when( 'plugin_dir_path' )->alias( 'dirname' );
+		Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.org/plugin/' );
+		Functions\when( 'plugin_basename' )->returnArg();
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
 	}
 
 	protected function tearDown(): void {
@@ -20,19 +26,314 @@ class PluginInitTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function xtest_initialization(): void {
-		$this->initTempPlugin('simple-plugin');
+	public function test_boot_registers_deferred_plugins_loaded_hook_for_hooks_config(): void {
+		$plugin_file = $this->createTempFile(
+			'example-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Example plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
 
-		(new Kernel([]))->boot();
+		Functions\expect( 'add_action' )
+			->once()
+			->with( 'plugins_loaded', \Mockery::type( \Closure::class ), -50 );
+
+		Init::setup(
+			[
+				'hooks' => __DIR__ . '/Fixtures/hook-bindings',
+			]
+		)->boot( $plugin_file );
+
+		$this->addToAssertionCount( 1 );
 	}
 
-	private function load_plugin_file( $dir, $slug ): ?Plugin {
-		$load = \Closure::bind( static function () use ( $dir, $slug ): ?Plugin {
-			require $dir . "/$slug.php";
+	public function test_boot_rejects_list_style_module_configuration(): void {
+		$plugin_file = $this->createTempFile(
+			'list-style-modules.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: List style modules
+ * Version: 1.0.0
+ */
+PHP
+		);
 
-			return $plugin;
-		}, null, null );
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'class-string identifiers' );
 
-		return $load();
+		Init::setup(
+			[
+				'modules' => [
+					\WPDesk\Init\Module\BuiltinModule::class,
+				],
+			]
+		)->boot( $plugin_file );
+	}
+
+	public function test_boot_rejects_invalid_module_config_values(): void {
+		$plugin_file = $this->createTempFile(
+			'invalid-module-config.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Invalid module config
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'must be an array or null' );
+
+		Init::setup(
+			[
+				'modules' => [
+					\WPDesk\Init\Module\BuiltinModule::class => 'invalid',
+				],
+			]
+		)->boot( $plugin_file );
+	}
+
+	public function test_boot_rejects_non_module_classes(): void {
+		$plugin_file = $this->createTempFile(
+			'invalid-module-class.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Invalid module class
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'must implement' );
+
+		Init::setup(
+			[
+				'modules' => [
+					\stdClass::class => [],
+				],
+			]
+		)->boot( $plugin_file );
+	}
+
+	public function test_boot_registers_activation_and_deactivation_handlers(): void {
+		$plugin_file = $this->createTempFile(
+			'lifecycle-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Lifecycle plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		$activation_calls = 0;
+		$deactivation_calls = 0;
+		$activation_callback = null;
+		$deactivation_callback = null;
+
+		Functions\when( 'register_activation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$activation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$activation_callback = $callback;
+			}
+		);
+
+		Functions\when( 'register_deactivation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$deactivation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$deactivation_callback = $callback;
+			}
+		);
+
+		Init::setup(
+			[
+				'activate' => static function () use ( &$activation_calls ): void {
+					$activation_calls++;
+				},
+				'deactivate' => static function () use ( &$deactivation_calls ): void {
+					$deactivation_calls++;
+				},
+			]
+		)->boot( $plugin_file );
+
+		$this->assertInstanceOf( \Closure::class, $activation_callback );
+		$this->assertInstanceOf( \Closure::class, $deactivation_callback );
+
+		$activation_callback();
+		$deactivation_callback();
+
+		$this->assertSame( 1, $activation_calls );
+		$this->assertSame( 1, $deactivation_calls );
+	}
+
+	public function test_boot_accepts_lifecycle_callable_arrays_as_single_bindings(): void {
+		$plugin_file = $this->createTempFile(
+			'lifecycle-callable-array-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Lifecycle callable array plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		LifecycleCallableArrayHandler::$activation_calls   = 0;
+		LifecycleCallableArrayHandler::$deactivation_calls = 0;
+		$activation_callback = null;
+		$deactivation_callback = null;
+
+		Functions\when( 'register_activation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$activation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$activation_callback = $callback;
+			}
+		);
+
+		Functions\when( 'register_deactivation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$deactivation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$deactivation_callback = $callback;
+			}
+		);
+
+		Init::setup(
+			[
+				'activate'   => [ LifecycleCallableArrayHandler::class, 'activate' ],
+				'deactivate' => [ LifecycleCallableArrayHandler::class, 'deactivate' ],
+			]
+		)->boot( $plugin_file );
+
+		$this->assertInstanceOf( \Closure::class, $activation_callback );
+		$this->assertInstanceOf( \Closure::class, $deactivation_callback );
+
+		$activation_callback();
+		$deactivation_callback();
+
+		$this->assertSame( 1, LifecycleCallableArrayHandler::$activation_calls );
+		$this->assertSame( 1, LifecycleCallableArrayHandler::$deactivation_calls );
+	}
+
+	public function test_boot_gate_can_stop_normal_hook_registration(): void {
+		$plugin_file = $this->createTempFile(
+			'gate-stop-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Gate stop plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		Functions\expect( 'add_action' )->never();
+
+		Init::setup(
+			[
+				'gates' => [
+					StopBootGate::class,
+				],
+			]
+		)->boot( $plugin_file );
+
+		$this->addToAssertionCount( 1 );
+	}
+
+	public function test_boot_gate_allows_normal_hook_registration_when_it_passes(): void {
+		$plugin_file = $this->createTempFile(
+			'gate-pass-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Gate pass plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		Functions\expect( 'add_action' )
+			->once()
+			->with( 'plugins_loaded', \Mockery::type( \Closure::class ), -50 );
+
+		Init::setup(
+			[
+				'hooks' => __DIR__ . '/Fixtures/hook-bindings',
+				'gates' => [ PassBootGate::class ],
+			]
+		)->boot( $plugin_file );
+
+		$this->addToAssertionCount( 1 );
+	}
+
+	public function test_boot_rejects_non_gate_classes(): void {
+		$plugin_file = $this->createTempFile(
+			'invalid-gate-class.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Invalid gate class
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'must implement' );
+
+		Init::setup(
+			[
+				'gates' => [
+					\stdClass::class,
+				],
+			]
+		)->boot( $plugin_file );
+	}
+}
+
+final class StopBootGate implements BootGate {
+
+	public function can_boot(): bool {
+		return false;
+	}
+
+	public function on_failure(): void {
+	}
+}
+
+final class PassBootGate implements BootGate {
+
+	public function can_boot(): bool {
+		return true;
+	}
+
+	public function on_failure(): void {
+	}
+}
+
+final class LifecycleCallableArrayHandler {
+
+	public static int $activation_calls = 0;
+
+	public static int $deactivation_calls = 0;
+
+	public static function activate(): void {
+		self::$activation_calls++;
+	}
+
+	public static function deactivate(): void {
+		self::$deactivation_calls++;
 	}
 }

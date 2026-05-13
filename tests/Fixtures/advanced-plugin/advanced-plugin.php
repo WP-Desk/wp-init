@@ -16,14 +16,10 @@
  * Requires PHP: 7.2
  */
 
-$plugin = ( new \WPDesk\Init\Kernel( [
-	'bundles'               => [
-		\WPDesk\Init\Bundle\ContainerBundle::class
-	],
-	'cache_path'            => 'generated',
-	'require'               => [],
-	'container_definitions' => [],
-	'hook_subscribers'      => [
-		\WPDesk\Init\Bundle\ContainerBundle::class
-	],
-] ) )->boot();
+require __DIR__ . '/../../../vendor/autoload.php';
+
+\WPDesk\Init\Init::setup(
+	[
+		'cache_path' => 'generated',
+	]
+)->boot( __FILE__ );

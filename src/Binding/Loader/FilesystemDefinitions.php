@@ -4,36 +4,45 @@ declare( strict_types=1 );
 namespace WPDesk\Init\Binding\Loader;
 
 use WPDesk\Init\Binding\DefinitionFactory;
+use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Util\Path;
 use WPDesk\Init\Util\PhpFileLoader;
 
+/**
+ * @internal Binding loader implementation detail.
+ */
 class FilesystemDefinitions implements BindingDefinitions {
 
-	/** @var Path */
-	private $path;
+	private Path $path;
 
-	/** @var PhpFileLoader */
-	private $loader;
+	private PhpFileLoader $loader;
 
-	/** @var DefinitionFactory */
-	private $def_factory;
+	private DefinitionFactory $def_factory;
 
+	/** @param string|Path $path */
 	public function __construct( $path, ?PhpFileLoader $loader = null, ?DefinitionFactory $def_factory = null ) {
-		$this->path        = new Path( (string) $path );
+		$this->path        = $path instanceof Path ? $path : new Path( $path );
 		$this->loader      = $loader ?? new PhpFileLoader();
 		$this->def_factory = $def_factory ?? new DefinitionFactory();
 	}
 
+	/** @return iterable<Definition<mixed>> */
 	public function load(): iterable {
 		if ( $this->path->is_directory() ) {
 			foreach ( $this->path->read_directory() as $filename ) {
 				yield from $this->load_from_file( $filename );
 			}
-		} else {
-			yield from $this->load_from_file( $this->path );
+			return;
 		}
+
+		if ( ! $this->path->is_file() ) {
+			throw new \InvalidArgumentException( sprintf( 'Path "%s" is neither a file nor a directory.', (string) $this->path ) );
+		}
+
+		yield from $this->load_from_file( $this->path );
 	}
 
+	/** @return iterable<Definition<mixed>> */
 	private function load_from_file( Path $filename ): iterable {
 		if ( ! $filename->is_file() ) {
 			return;
@@ -45,6 +54,6 @@ class FilesystemDefinitions implements BindingDefinitions {
 			$hooks = [ $filename->get_filename_without_extension() => $hooks ];
 		}
 
-		yield from (new ArrayDefinitions( $hooks ) )->load();
+		yield from ( new ArrayDefinitions( $hooks, $this->def_factory ) )->load();
 	}
 }

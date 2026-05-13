@@ -13,4 +13,7 @@ interface Definition {
 
 	/** @return T */
 	public function value();
+
+	/** @return mixed */
+	public function option( string $name );
 }

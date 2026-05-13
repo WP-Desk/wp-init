@@ -5,23 +5,21 @@
 
 namespace WPDesk\Init;
 
-use WPDesk\Init\Extension\LegacyExtension;
-use WPDesk\Init\Extension\BuiltinExtension;
-use WPDesk\Init\Extension\ConfigExtension;
-use WPDesk\Init\Extension\ExtensionsSet;
-use WPDesk\Init\Util\PhpFileLoader;
 use WPDesk\Init\Configuration\Configuration;
-use WPDesk\Init\Extension\ConditionalExtension;
+use WPDesk\Init\Util\PhpFileLoader;
 
 final class Init {
 
+	/** @var bool */
 	private static $bootable = true;
 
 	/** @var Configuration */
 	private $config;
 
 	/**
-	 * @param string|array|Configuration $config
+	 * @param string|array<string,mixed>|Configuration $config
+	 *
+	 * @return self
 	 */
 	public static function setup( $config ) {
 		$result = require __DIR__ . '/platform_check.php';
@@ -34,7 +32,7 @@ final class Init {
 	}
 
 	/**
-	 * @param string|array|Configuration $config
+	 * @param string|array<string, mixed>|Configuration $config
 	 */
 	public function __construct( $config ) {
 		if ( $config instanceof Configuration ) {
@@ -51,28 +49,20 @@ final class Init {
 
 	/**
 	 * @param string|null $filename Filename of the booted plugin. May be null, if called from plugin's main file.
+	 *
+	 * @return void
 	 */
-	public function boot( ?string $filename = null ) {
+	public function boot( $filename = null ) {
 		if ( self::$bootable === false ) {
 			return;
 		}
 
 		if ( $filename === null ) {
-			$backtrace = \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS, 1 );
+			$backtrace = \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS, 1 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 			$filename  = $backtrace[0]['file'];
 		}
 
-		$extensions = new ExtensionsSet(
-			new BuiltinExtension(),
-			new ConfigExtension(),
-			new ConditionalExtension()
-		);
-
-		if ( class_exists( \WPDesk_Plugin_Info::class ) ) {
-			$extensions->add( new LegacyExtension() );
-		}
-
-		$kernel = new Kernel( $filename, $this->config, $extensions );
+		$kernel = new Kernel( $filename, $this->config );
 		$kernel->boot();
 	}
 }

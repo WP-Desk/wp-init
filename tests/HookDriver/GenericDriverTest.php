@@ -3,57 +3,25 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Tests\HookDriver;
 
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use WPDesk\Init\Binding\Binder;
-use WPDesk\Init\Binding\Binder\HookableBinder;
 use WPDesk\Init\Binding\Binder\ObservableBinder;
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\HookDriver\GenericDriver;
-use WPDesk\Init\Configuration\Configuration;
-use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Loader\ArrayDefinitions;
 use WPDesk\Init\Tests\TestCase;
 
 class GenericDriverTest extends TestCase {
 
-	public function provider(): iterable {
-		yield [
-				'fake_binder' => new ObservableBinder(new class implements Binder {
+	public function setUp(): void {
+		parent::setUp();
+		Monkey\setUp();
+	}
 
-					public function bind( Definition $def ): void {
-					}
-				}),
-			function ( $binder ) {
-				$this->assertTrue( $binder->is_bound() );
-			}
-		];
-
-// 		yield 'interrupted with stoppable binder' => [
-// 			[
-// 				'stoppable_binder' => new class implements StoppableBinder {
-//
-// 					public function should_stop(): bool {
-// 						return true;
-// 					}
-//
-// 					private $is_bound = false;
-// 					public function bind(): void {
-// 						$this->is_bound = true;
-// 					}
-//
-// 					public function is_bound(): bool {
-// 						return $this->is_bound;
-// 					}
-// 				},
-// 				'fake_binder' => new ObservableBinder(new class implements Binder {
-//
-// 					public function bind(): void {
-// 					}
-// 				}),
-// 			],
-// 			function ( $binder ) {
-// 				$this->assertTrue( $binder->is_bound() );
-// 			}
-// 		];
+	public function tearDown(): void {
+		parent::tearDown();
+		Monkey\tearDown();
 	}
 
 	public function test_register_no_hooks(): void {
@@ -68,33 +36,59 @@ class GenericDriverTest extends TestCase {
 		$this->assertEquals(0, $binder->binds_count());
 	}
 
-	public function test_register_hooks(): void {
+	public function test_register_hooks_deferred_until_plugins_loaded(): void {
+		$registrations = [];
+		$plugins_loaded_callback = null;
+		$hook_callback = null;
+
+		Functions\when( 'add_action' )->alias(
+			static function ( $hook, $callback, $priority = 10 ) use ( &$registrations, &$plugins_loaded_callback, &$hook_callback ): void {
+				$registrations[] = [
+					'hook' => $hook,
+					'callback' => $callback,
+					'priority' => $priority,
+				];
+
+				if ( $hook === 'plugins_loaded' ) {
+					$plugins_loaded_callback = $callback;
+				}
+
+				if ( $hook === 'hook1' ) {
+					$hook_callback = $callback;
+				}
+			}
+		);
+
 		$binder = new ObservableBinder($this->getBinder());
 		$driver = new GenericDriver(
-			new ArrayDefinitions(['' => ['hook1', 'hook2']]),
+			new ArrayDefinitions(
+				[
+					static function (): void {
+					},
+					'hook1' => static function (): void {
+					},
+				]
+			),
 			$binder
 		);
 
 		$driver->register_hooks();
 
-		$this->assertEquals(2, $binder->binds_count());
-	}
+		$this->assertCount( 1, $registrations );
+		$this->assertSame( 'plugins_loaded', $registrations[0]['hook'] );
+		$this->assertInstanceOf( \Closure::class, $plugins_loaded_callback );
+		$this->assertEquals( 0, $binder->binds_count() );
 
-	private function getContainer( array $services ): ContainerInterface {
-		return new class($services) implements ContainerInterface {
-			private $services;
-			public function __construct( $services ) {
-				$this->services = $services;
-			}
+		$plugins_loaded_callback();
 
-			public function get( $id ) {
-				return $this->services[$id];
-			}
+		$this->assertCount( 2, $registrations );
+		$this->assertSame( 'hook1', $registrations[1]['hook'] );
+		$this->assertInstanceOf( \Closure::class, $hook_callback );
+		$this->assertEquals( 1, $binder->binds_count() );
 
-			public function has(string $id ): bool {
-				return isset( $this->services[$id] );
-			}
-		};
+		$hook_callback();
+
+		$this->assertEquals( 2, $binder->binds_count() );
 	}
 
 	private function getBinder(): Binder {

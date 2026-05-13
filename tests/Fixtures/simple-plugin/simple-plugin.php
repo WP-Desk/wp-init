@@ -3,4 +3,6 @@
  * Plugin Name: Example plugin
  */
 
-$plugin = ( new \WPDesk\Init\Kernel( 'config.php' ) )->boot();
+require __DIR__ . '/../../../vendor/autoload.php';
+
+\WPDesk\Init\Init::setup( __DIR__ . '/config.php' )->boot( __FILE__ );

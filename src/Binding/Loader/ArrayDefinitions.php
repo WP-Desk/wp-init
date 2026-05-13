@@ -5,18 +5,19 @@ namespace WPDesk\Init\Binding\Loader;
 
 use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\DefinitionFactory;
-use WPDesk\Init\Configuration\ReadableConfig;
-use WPDesk\Init\Plugin\Plugin;
 
+/**
+ * @internal Binding loader implementation detail.
+ */
 class ArrayDefinitions implements BindingDefinitions {
 
-	/** @var array */
-	private $bindings;
+	/** @var array<int|string, mixed> */
+	private array $bindings;
 
-	/** @var DefinitionFactory */
-	private $factory;
+	private DefinitionFactory $factory;
 
-	public function __construct( array $bindings, ?DefinitionFactory $factory = null) {
+	/** @param array<int|string, mixed> $bindings */
+	public function __construct( array $bindings, ?DefinitionFactory $factory = null ) {
 		$this->bindings = $bindings;
 		$this->factory  = $factory ?? new DefinitionFactory();
 	}
@@ -25,11 +26,28 @@ class ArrayDefinitions implements BindingDefinitions {
 		yield from $this->normalize( $this->bindings );
 	}
 
+	/**
+	 * @param iterable<int|string,mixed> $bindings
+	 *
+	 * @return iterable<Definition<mixed>>
+	 */
 	private function normalize( iterable $bindings ): iterable {
 		foreach ( $bindings as $key => $value ) {
-			if ( is_array( $value ) ) {
-				foreach ( $value as $unit ) {
-					yield $this->create( $unit, $key );
+			if ( is_callable( $value ) ) {
+				yield $this->create( $value, $key );
+			} elseif ( is_array( $value ) ) {
+				if ( isset( $value['handler'] ) ) {
+					// Single item with handler.
+					yield $this->create( $value['handler'], $key, $value );
+				} else {
+					// Multiple items.
+					foreach ( $value as $unit ) {
+						if ( is_array( $unit ) && isset( $unit['handler'] ) ) {
+							yield $this->create( $unit['handler'], $key, $unit );
+						} else {
+							yield $this->create( $unit, $key );
+						}
+					}
 				}
 			} else {
 				yield $this->create( $value, $key );
@@ -38,10 +56,13 @@ class ArrayDefinitions implements BindingDefinitions {
 	}
 
 	/**
-     * @param mixed $value
+	 * @param mixed $value
 	 * @param int|string $hook
+	 * @param array<string, mixed> $options
+	 *
+	 * @return Definition<mixed>
 	 */
-	private function create( $value, $hook ): Definition {
-		return $this->factory->create( $value, is_int( $hook ) ? null : $hook );
+	private function create( $value, $hook, array $options = [] ): Definition {
+		return $this->factory->create( $value, is_int( $hook ) ? null : $hook, $options );
 	}
 }

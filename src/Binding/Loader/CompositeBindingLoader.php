@@ -3,17 +3,21 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Binding\Loader;
 
-use WPDesk\Init\Plugin\Plugin;
+use WPDesk\Init\Binding\Definition;
 
+/**
+ * @internal Binding loader implementation detail.
+ */
 class CompositeBindingLoader implements BindingDefinitions {
 
-	/** @var BindingDefinitionLoader[] */
-	private $loaders;
+	/** @var list<BindingDefinitions> */
+	private array $loaders;
 
 	public function __construct( BindingDefinitions ...$loaders ) {
 		$this->loaders = $loaders;
 	}
 
+	/** @return iterable<Definition<mixed>> */
 	public function load(): iterable {
 		foreach ( $this->loaders as $loader ) {
 			yield from $loader->load();

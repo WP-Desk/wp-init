@@ -9,5 +9,6 @@ namespace WPDesk\Init\Binding;
  */
 interface ComposableBinder extends Binder {
 
+	/** @param Definition<mixed> $def */
 	public function can_bind( Definition $def ): bool;
 }

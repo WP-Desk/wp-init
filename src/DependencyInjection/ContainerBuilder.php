@@ -9,9 +9,10 @@ use DI\Definition\Source\DefinitionSource;
 
 final class ContainerBuilder {
 
-	/** @var DiBuilder */
-	private $original_builder;
+	/** @var DiBuilder<Container> */
+	private DiBuilder $original_builder;
 
+	/** @param DiBuilder<Container> $original_builder */
 	public function __construct( DiBuilder $original_builder ) {
 		$this->original_builder = $original_builder;
 	}
@@ -19,7 +20,7 @@ final class ContainerBuilder {
 	/**
 	 * Add definitions to the container.
 	 *
-	 * @param string|array|DefinitionSource ...$definitions
+	 * @param string|array<string,mixed>|DefinitionSource ...$definitions
 	 *  Can be an array of definitions, the name of a file containing definitions or
 	 *  a DefinitionSource object.
 	 *

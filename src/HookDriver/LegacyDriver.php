@@ -6,10 +6,12 @@ namespace WPDesk\Init\HookDriver;
 use Psr\Container\ContainerInterface;
 use WPDesk\Init\HookDriver\Legacy\HooksRegistry;
 
+/**
+ * @internal Legacy hook driver implementation detail.
+ */
 final class LegacyDriver implements HookDriver {
 
-	/** @var ContainerInterface */
-	private $container;
+	private ContainerInterface $container;
 
 	public function __construct( ContainerInterface $container ) {
 		if ( ! class_exists( \WPDesk_Plugin_Info::class ) ) {

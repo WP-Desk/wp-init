@@ -8,7 +8,7 @@ use WPDesk\Init\Plugin\DefaultHeaderParser;
 class DefaultHeaderParserTest extends TestCase {
 
 	/** @dataProvider provider */
-	public function test_should_parse_plugin_data_from_file( $name,  string $content, array $expected ): void {
+	public function test_should_parse_plugin_data_from_file( string $name,  string $content, array $expected ): void {
 		$file = $this->createTempFile($name, $content);
 
 		$data = new DefaultHeaderParser();
@@ -18,18 +18,18 @@ class DefaultHeaderParserTest extends TestCase {
 	public function provider(): iterable {
 		yield [
 			'first.php',
-<<<PHP
+<<<PHP_WRAP
 <?php
 /**
  * Plugin Name: Example plugin
  */
-PHP,
+PHP_WRAP,
 			[ 'Name' => 'Example plugin' ],
 		];
 
 		yield [
 			'second.php',
-<<<PHP
+<<<PHP_WRAP
 <?php
 /**
  * Plugin Name: ShopMagic for WooCommerce
@@ -46,7 +46,8 @@ PHP,
  * WC tested up to: 7.2
  * Requires PHP: 7.2
  */
-PHP,
+PHP_WRAP
+,
 			[
 				'Name'        => 'ShopMagic for WooCommerce',
 				'PluginURI'   => 'https://shopmagic.app/',

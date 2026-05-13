@@ -9,18 +9,19 @@ use WPDesk\Init\Binding\Definition;
 /** @implements Definition<callable> */
 class CallableDefinition implements Definition {
 
-	/** @var ?string */
-	private $hook;
+	private ?string $hook;
 
 	/** @var callable */
 	private $callable;
 
-	public function __construct(
-		callable $callable,
-		?string $hook = null,
-	) {
+	/** @var array<string, mixed> */
+	private array $options;
+
+	/** @param array<string, mixed> $options */
+	public function __construct( callable $callable, ?string $hook = null, array $options = [] ) {
 		$this->callable = $callable;
 		$this->hook     = $hook;
+		$this->options  = $options;
 	}
 
 	public function hook(): ?string {
@@ -29,5 +30,9 @@ class CallableDefinition implements Definition {
 
 	public function value() {
 		return $this->callable;
+	}
+
+	public function option( string $name ) {
+		return $this->options[ $name ] ?? null;
 	}
 }
