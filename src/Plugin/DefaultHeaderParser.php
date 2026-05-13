@@ -105,7 +105,7 @@ class DefaultHeaderParser implements HeaderParser {
 	 * @since 2.9.0
 	 *
 	 * @param string $file Absolute path to the file.
-	 * @param array $default_headers List of headers, in the format `array( 'HeaderKey' => 'Header
+	 * @param array<string,string> $default_headers List of headers, in the format `array( 'HeaderKey' => 'Header
 	 *                                Name' )`.
 	 *
 	 * @return string[] Array of file header values keyed by header name.

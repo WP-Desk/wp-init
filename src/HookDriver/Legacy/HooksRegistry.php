@@ -9,7 +9,7 @@ use WPDesk\PluginBuilder\Plugin\Hookable;
 /**
  * @internal Legacy migration support detail.
  *
- * @implements IteratorAggregate<int,Hookable>
+ * @implements \IteratorAggregate<int,Hookable>
  */
 final class HooksRegistry implements \IteratorAggregate {
 
@@ -43,6 +43,7 @@ final class HooksRegistry implements \IteratorAggregate {
 		);
 	}
 
+	/** @param class-string<Hookable>|Hookable $hookable */
 	public function add( $hookable ): void {
 		$this->callbacks[] = $hookable;
 	}

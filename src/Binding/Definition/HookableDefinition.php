@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WPDesk\Init\Binding\Definition;
 
 use WPDesk\Init\Binding\Definition;
+use WPDesk\Init\Binding\Hookable;
 
 /** @implements Definition<class-string<Hookable>> */
 class HookableDefinition implements Definition {
@@ -17,11 +18,11 @@ class HookableDefinition implements Definition {
 	/** @var array<string, mixed> */
 	private array $options;
 
-	public function __construct(
-		string $hookable,
-		?string $hook = null,
-		array $options = []
-	) {
+	/**
+	 * @param class-string<Hookable> $hookable
+	 * @param array<string, mixed> $options
+	 */
+	public function __construct( string $hookable, ?string $hook = null, array $options = [] ) {
 		$this->hook     = $hook;
 		$this->hookable = $hookable;
 		$this->options  = $options;

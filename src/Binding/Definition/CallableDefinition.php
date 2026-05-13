@@ -17,11 +17,8 @@ class CallableDefinition implements Definition {
 	/** @var array<string, mixed> */
 	private array $options;
 
-	public function __construct(
-		callable $callable,
-		?string $hook = null,
-		array $options = []
-	) {
+	/** @param array<string, mixed> $options */
+	public function __construct( callable $callable, ?string $hook = null, array $options = [] ) {
 		$this->callable = $callable;
 		$this->hook     = $hook;
 		$this->options  = $options;

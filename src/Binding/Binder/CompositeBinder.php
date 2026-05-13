@@ -13,7 +13,7 @@ use WPDesk\Init\Binding\Definition;
  */
 final class CompositeBinder implements Binder {
 
-	/** @var ComposableBinder[] */
+	/** @var list<ComposableBinder> */
 	private array $binders;
 
 	public function __construct( ComposableBinder ...$binders ) {
@@ -24,6 +24,7 @@ final class CompositeBinder implements Binder {
 		$this->binders[] = $binder;
 	}
 
+	/** @param Definition<mixed> $def */
 	public function bind( Definition $def ): void {
 		if ( is_iterable( $def ) ) {
 			foreach ( $def as $d ) {

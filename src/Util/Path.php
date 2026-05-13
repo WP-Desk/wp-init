@@ -13,18 +13,27 @@ final class Path {
 	}
 
 	public function canonical(): self {
-		$root = $this->is_absolute_path( $this->path ) ? '/' : '';
+		$root = $this->is_posix_absolute_path( $this->path ) ? '/' : '';
 		return new self( $root . implode( '/', $this->find_canonical_parts() ) );
 	}
 
 	public function absolute( ?string $base_path = null ): self {
+		if ( $this->is_absolute_path( $this->path ) ) {
+			if ( $this->is_windows_absolute_path( $this->path ) ) {
+				return $this;
+			}
+
+			return $this->canonical();
+		}
+
 		$base_path ??= getcwd();
 		return ( new self( rtrim( $base_path, '/\\' ) . '/' . $this->path ) )->canonical();
 	}
 
+	/** @return list<string> */
 	private function find_canonical_parts(): array {
 		$parts = explode( '/', $this->path );
-		$root  = $this->is_absolute_path( $this->path ) ? '/' : '';
+		$root  = $this->is_posix_absolute_path( $this->path ) ? '/' : '';
 
 		$canonical_parts = [];
 
@@ -93,6 +102,17 @@ final class Path {
 	}
 
 	private function is_absolute_path( string $path ): bool {
+		return $this->is_posix_absolute_path( $path ) || $this->is_windows_absolute_path( $path );
+	}
+
+	private function is_posix_absolute_path( string $path ): bool {
 		return isset( $path[0] ) && $path[0] === '/';
+	}
+
+	private function is_windows_absolute_path( string $path ): bool {
+		return isset( $path[0] ) && (
+			$path[0] === '\\' ||
+			(bool) preg_match( '/^[A-Za-z]:[\/\\\\]/', $path )
+		);
 	}
 }

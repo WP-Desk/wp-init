@@ -4,6 +4,7 @@ declare( strict_types=1 );
 namespace WPDesk\Init\Binding\Loader;
 
 use WPDesk\Init\Binding\DefinitionFactory;
+use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Util\Path;
 use WPDesk\Init\Util\PhpFileLoader;
 
@@ -18,12 +19,14 @@ class FilesystemDefinitions implements BindingDefinitions {
 
 	private DefinitionFactory $def_factory;
 
+	/** @param string|Path $path */
 	public function __construct( $path, ?PhpFileLoader $loader = null, ?DefinitionFactory $def_factory = null ) {
-		$this->path        = new Path( (string) $path );
+		$this->path        = $path instanceof Path ? $path : new Path( $path );
 		$this->loader      = $loader ?? new PhpFileLoader();
 		$this->def_factory = $def_factory ?? new DefinitionFactory();
 	}
 
+	/** @return iterable<Definition<mixed>> */
 	public function load(): iterable {
 		if ( $this->path->is_directory() ) {
 			foreach ( $this->path->read_directory() as $filename ) {
@@ -39,6 +42,7 @@ class FilesystemDefinitions implements BindingDefinitions {
 		yield from $this->load_from_file( $this->path );
 	}
 
+	/** @return iterable<Definition<mixed>> */
 	private function load_from_file( Path $filename ): iterable {
 		if ( ! $filename->is_file() ) {
 			return;

@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Binding\Loader;
 
+use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Definition\DefinitionCollection;
 
 /**
@@ -16,6 +17,7 @@ final class ClusteredLoader implements BindingDefinitions {
 		$this->loader = $loader;
 	}
 
+	/** @return iterable<Definition<mixed>> */
 	public function load(): iterable {
 		$definitions = [];
 		foreach ( $this->loader->load() as $def ) {

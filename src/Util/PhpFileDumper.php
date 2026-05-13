@@ -6,6 +6,7 @@ namespace WPDesk\Init\Util;
 
 class PhpFileDumper {
 
+	/** @param array<string, mixed> $config */
 	public function dump( array $config, string $filename ): void {
 		$directory = dirname( $filename );
 		$this->createCompilationDirectory( $directory );

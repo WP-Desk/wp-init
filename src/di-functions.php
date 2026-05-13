@@ -58,7 +58,7 @@ if ( ! function_exists( 'WPDesk\Init\DI\factory' ) ) {
 	/**
 	 * Helper for defining a container entry using a factory function/callable.
 	 *
-	 * @param callable|array|string $factory The factory is a callable that takes the container as parameter
+	 * @param callable|array<mixed>|string $factory The factory is a callable that takes the container as parameter
 	 *        and returns the value to register in the container.
 	 */
 	function factory( $factory ): FactoryDefinitionHelper {

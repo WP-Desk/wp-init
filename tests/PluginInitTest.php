@@ -177,6 +177,56 @@ PHP
 		$this->assertSame( 1, $deactivation_calls );
 	}
 
+	public function test_boot_accepts_lifecycle_callable_arrays_as_single_bindings(): void {
+		$plugin_file = $this->createTempFile(
+			'lifecycle-callable-array-plugin.php',
+			<<<'PHP'
+<?php
+/**
+ * Plugin Name: Lifecycle callable array plugin
+ * Version: 1.0.0
+ */
+PHP
+		);
+
+		LifecycleCallableArrayHandler::$activation_calls   = 0;
+		LifecycleCallableArrayHandler::$deactivation_calls = 0;
+		$activation_callback = null;
+		$deactivation_callback = null;
+
+		Functions\when( 'register_activation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$activation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$activation_callback = $callback;
+			}
+		);
+
+		Functions\when( 'register_deactivation_hook' )->alias(
+			static function ( string $file, $callback ) use ( $plugin_file, &$deactivation_callback ): void {
+				\PHPUnit\Framework\Assert::assertSame( $plugin_file, $file );
+				\PHPUnit\Framework\Assert::assertInstanceOf( \Closure::class, $callback );
+				$deactivation_callback = $callback;
+			}
+		);
+
+		Init::setup(
+			[
+				'activate'   => [ LifecycleCallableArrayHandler::class, 'activate' ],
+				'deactivate' => [ LifecycleCallableArrayHandler::class, 'deactivate' ],
+			]
+		)->boot( $plugin_file );
+
+		$this->assertInstanceOf( \Closure::class, $activation_callback );
+		$this->assertInstanceOf( \Closure::class, $deactivation_callback );
+
+		$activation_callback();
+		$deactivation_callback();
+
+		$this->assertSame( 1, LifecycleCallableArrayHandler::$activation_calls );
+		$this->assertSame( 1, LifecycleCallableArrayHandler::$deactivation_calls );
+	}
+
 	public function test_boot_gate_can_stop_normal_hook_registration(): void {
 		$plugin_file = $this->createTempFile(
 			'gate-stop-plugin.php',
@@ -270,5 +320,20 @@ final class PassBootGate implements BootGate {
 	}
 
 	public function on_failure(): void {
+	}
+}
+
+final class LifecycleCallableArrayHandler {
+
+	public static int $activation_calls = 0;
+
+	public static int $deactivation_calls = 0;
+
+	public static function activate(): void {
+		self::$activation_calls++;
+	}
+
+	public static function deactivate(): void {
+		self::$deactivation_calls++;
 	}
 }

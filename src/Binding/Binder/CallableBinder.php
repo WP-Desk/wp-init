@@ -25,7 +25,12 @@ final class CallableBinder implements ComposableBinder {
 		return $def instanceof CallableDefinition;
 	}
 
+	/** @param Definition<mixed> $def */
 	public function bind( Definition $def ): void {
+		if ( ! $def instanceof CallableDefinition ) {
+			throw new InvalidCallableBinding( sprintf( 'Expected %s binding definition.', CallableDefinition::class ) );
+		}
+
 		$callable   = $this->normalize_callable( $def->value() );
 		$ref        = new \ReflectionFunction( $callable );
 		$parameters = [];
@@ -41,6 +46,7 @@ final class CallableBinder implements ComposableBinder {
 		return \Closure::fromCallable( $callable );
 	}
 
+	/** @return mixed */
 	private function resolve_parameter( \ReflectionParameter $parameter ) {
 		$type = $parameter->getType();
 		if ( ! $type instanceof \ReflectionNamedType ) {

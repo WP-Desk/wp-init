@@ -19,6 +19,24 @@ class PathTest extends TestCase {
         $this->assertEquals(getcwd().'/src', (string) $path->absolute());
     }
 
+	public function test_posix_absolute_path_is_not_prefixed_with_base_path(): void
+	{
+		$path = new Path('/var/www/plugin/config/hooks');
+		$this->assertEquals('/var/www/plugin/config/hooks', (string) $path->absolute('/tmp/plugin'));
+	}
+
+	public function test_windows_drive_absolute_path_is_not_prefixed_with_base_path(): void
+	{
+		$path = new Path('C:\\wp\\plugin\\config\\hooks');
+		$this->assertEquals('C:\\wp\\plugin\\config\\hooks', (string) $path->absolute('/tmp/plugin'));
+	}
+
+	public function test_windows_unc_absolute_path_is_not_prefixed_with_base_path(): void
+	{
+		$path = new Path('\\\\server\\share\\plugin\\config\\hooks');
+		$this->assertEquals('\\\\server\\share\\plugin\\config\\hooks', (string) $path->absolute('/tmp/plugin'));
+	}
+
     public function test_join(): void
     {
         $path = new Path('/var/www');

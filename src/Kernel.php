@@ -39,8 +39,8 @@ use WPDesk\Init\Util\PhpFileLoader;
  */
 final class Kernel {
 
-	/** @var string|null Plugin filename. */
-	private ?string $filename;
+	/** @var string Plugin filename. */
+	private string $filename;
 
 	private Configuration $config;
 
@@ -245,7 +245,7 @@ final class Kernel {
 
 		if ( function_exists( 'wp_get_environment_type' ) ) {
 			$wp_environment = wp_get_environment_type();
-			if ( is_string( $wp_environment ) && $wp_environment !== '' ) {
+			if ( $wp_environment !== '' ) {
 				return $wp_environment;
 			}
 		}
@@ -294,5 +294,4 @@ final class Kernel {
 
 		return $gates;
 	}
-
 }

@@ -43,7 +43,7 @@ final class ConfigModule extends AbstractModule {
 			return new EmptyDefinitions();
 		}
 
-		return new ArrayDefinitions( is_array( $activate ) ? $activate : [ $activate ] );
+		return new ArrayDefinitions( $this->lifecycle_bindings( $activate ) );
 	}
 
 	public function deactivate( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
@@ -52,7 +52,7 @@ final class ConfigModule extends AbstractModule {
 			return new EmptyDefinitions();
 		}
 
-		return new ArrayDefinitions( is_array( $deactivate ) ? $deactivate : [ $deactivate ] );
+		return new ArrayDefinitions( $this->lifecycle_bindings( $deactivate ) );
 	}
 
 	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
@@ -72,5 +72,41 @@ final class ConfigModule extends AbstractModule {
 		}
 
 		return $gates;
+	}
+
+	/**
+	 * @param mixed $bindings
+	 *
+	 * @return array<int|string, mixed>
+	 */
+	private function lifecycle_bindings( $bindings ): array {
+		if ( is_callable( $bindings ) ) {
+			return [
+				[
+					'handler' => $bindings,
+				],
+			];
+		}
+
+		if ( ! is_array( $bindings ) ) {
+			return [ $bindings ];
+		}
+
+		if ( isset( $bindings['handler'] ) ) {
+			return [ $bindings ];
+		}
+
+		return array_map(
+			static function ( $binding ) {
+				if ( is_callable( $binding ) ) {
+					return [
+						'handler' => $binding,
+					];
+				}
+
+				return $binding;
+			},
+			$bindings
+		);
 	}
 }
