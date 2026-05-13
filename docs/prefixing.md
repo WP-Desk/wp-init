@@ -1,37 +1,52 @@
-# Prefixing `wp-init` with `php-scoper`
+# Prefixing `wp-init` with PHP-Scoper
 
-When developing plugins, it's worth to prefix all dependencies to avoid version collision between
-different plugins loaded during runtime. For this library to enable prefixing you will need to
-introduce following configuration to your `scoper.inc.php` file.
+Prefix plugin dependencies to avoid runtime collisions between plugins that load
+different versions of the same package.
 
-- Whitelist `vendor/php-di/php-di/src/Compiler/Template.php`
-- Include `php-di` and it's dependencies in finders
+`wp-init` can be prefixed, but PHP-DI needs special handling:
 
-> *Note*
->
-> Pay attention to actual installed `php-di/php-di` version, as it's dependencies may change,
-> requiring to update `scoper.inc.php` accordingly.
+- include `vendor/wpdesk/wp-init`
+- include `vendor/php-di`
+- include the runtime dependencies installed with PHP-DI
+- leave `vendor/php-di/php-di/src/Compiler/Template.php` unprefixed
 
-## Example configuration
+Check `composer.lock` for the exact PHP-DI dependency tree used by the plugin.
+For common PHP-DI versions:
 
-**`php-di/php-di` up to 6.3.5**
+- PHP-DI up to `6.3.5` uses `vendor/opis/closure`
+- PHP-DI `6.4.0` and newer commonly uses
+  `vendor/laravel/serializable-closure`
+
+## Example
+
+Current PHP-Scoper config uses `finders` and `exclude-files`:
 
 ```php
+<?php declare(strict_types=1);
+
+$finder = Isolated\Symfony\Component\Finder\Finder::class;
+
 return [
-  'finder' => Finder::create()->in(['vendor/wpdesk/wp-init', 'vendor/php-di', 'vendor/opis/closure']),
-  'files-whitelist' => [
-    'vendor/php-di/php-di/src/Compiler/Template.php'
-  ],
+	'finders' => [
+		$finder::create()
+			->files()
+			->in(
+				[
+					'vendor/wpdesk/wp-init',
+					'vendor/php-di',
+					'vendor/psr/container',
+					'vendor/laravel/serializable-closure',
+				]
+			),
+	],
+	'exclude-files' => [
+		'vendor/php-di/php-di/src/Compiler/Template.php',
+	],
 ];
 ```
 
-**`php-di/php-di` since 6.4.0**
+If the plugin uses a PHP-DI version that depends on `opis/closure`, replace
+`vendor/laravel/serializable-closure` with `vendor/opis/closure`.
 
-```php
-return [
-  'finder' => Finder::create()->in(['vendor/wpdesk/wp-init', 'vendor/php-di', 'vendor/laravel/serializable-closure']),
-  'files-whitelist' => [
-    'vendor/php-di/php-di/src/Compiler/Template.php'
-  ],
-];
-```
+Do not use the old `finder` or `files-whitelist` option names in new
+`scoper.inc.php` files.
