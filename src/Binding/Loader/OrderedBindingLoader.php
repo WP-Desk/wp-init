@@ -25,9 +25,9 @@ final class OrderedBindingLoader implements BindingDefinitions {
 
 		usort(
 			$definitions,
-			fn ( $a, $b ): int => $a->option( 'priority' ) <=> $b->option( 'priority' )
+			static fn ( $a, $b ): int => $a->option( 'priority' ) <=> $b->option( 'priority' )
 		);
 
-		yield from array_reverse( $definitions, false );
+		yield from array_reverse( $definitions );
 	}
 }

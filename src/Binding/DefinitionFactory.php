@@ -17,7 +17,7 @@ class DefinitionFactory {
 	 * @return Definition<mixed>
 	 */
 	public function create( $value, ?string $hook, array $options = [] ): Definition {
-		if ( is_string( $value ) && class_exists( $value ) && is_subclass_of( $value, Hookable::class, true ) ) {
+		if ( is_string( $value ) && class_exists( $value ) && is_subclass_of( $value, Hookable::class ) ) {
 			return new HookableDefinition( $value, $hook, $options );
 		}
 
@@ -29,8 +29,31 @@ class DefinitionFactory {
 			sprintf(
 				'Invalid binding for hook "%s". Expected a hookable class-string or callable, got %s.',
 				$hook ?? '<bootstrap>',
-				is_object( $value ) ? get_class( $value ) : gettype( $value )
+				$this->describe_value( $value )
 			)
 		);
+	}
+
+	/**
+	 * @param mixed $value
+	 */
+	private function describe_value( $value ): string {
+		if ( is_object( $value ) ) {
+			return get_class( $value );
+		}
+
+		if ( is_string( $value ) ) {
+			if ( class_exists( $value ) ) {
+				return sprintf(
+					'class-string "%s", but it does not implement %s',
+					$value,
+					Hookable::class
+				);
+			}
+
+			return sprintf( 'string "%s", which is not an autoloadable hookable class or callable', $value );
+		}
+
+		return gettype( $value );
 	}
 }

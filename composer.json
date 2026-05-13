@@ -57,26 +57,6 @@
     }
   },
   "repositories": {
-    "wp-init-plugin-free": {
-      "type": "path",
-      "url": "packages/wp-init-plugin-free",
-      "options": {
-        "symlink": true,
-        "versions": {
-          "wpdesk/wp-init-plugin-free": "1.0.0"
-        }
-      }
-    },
-    "wp-init-plugin-paid": {
-      "type": "path",
-      "url": "packages/wp-init-plugin-paid",
-      "options": {
-        "symlink": true,
-        "versions": {
-          "wpdesk/wp-init-plugin-paid": "1.0.0"
-        }
-      }
-    },
     "wpdesk": {
       "type": "composer",
       "url": "https://gitlab.wpdesk.dev/api/v4/group/wpdesk/-/packages/composer/"

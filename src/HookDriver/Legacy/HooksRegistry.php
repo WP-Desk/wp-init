@@ -26,7 +26,7 @@ final class HooksRegistry implements \IteratorAggregate {
 		$this->container = $c;
 	}
 
-	public static function instance(): HooksRegistry {
+	public static function instance(): self {
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}

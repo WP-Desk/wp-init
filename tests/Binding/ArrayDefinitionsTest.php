@@ -50,4 +50,30 @@ class ArrayDefinitionsTest extends TestCase {
 		iterator_to_array($a->load());
 	}
 
+	public function test_invalid_existing_class_string_error_explains_missing_hookable_contract(): void {
+		$a = new ArrayDefinitions([
+			'plugins_loaded' => NonHookableBindingDefinitionFixture::class,
+		]);
+
+		$this->expectException( InvalidBindingDefinition::class );
+		$this->expectExceptionMessage(
+			'class-string "' . NonHookableBindingDefinitionFixture::class . '", but it does not implement WPDesk\Init\Binding\Hookable'
+		);
+		iterator_to_array($a->load());
+	}
+
+	public function test_invalid_missing_class_string_error_includes_value(): void {
+		$a = new ArrayDefinitions([
+			'plugins_loaded' => 'Vendor\Plugin\MissingHookProvider',
+		]);
+
+		$this->expectException( InvalidBindingDefinition::class );
+		$this->expectExceptionMessage(
+			'string "Vendor\Plugin\MissingHookProvider", which is not an autoloadable hookable class or callable'
+		);
+		iterator_to_array($a->load());
+	}
+
 }
+
+class NonHookableBindingDefinitionFixture {}
