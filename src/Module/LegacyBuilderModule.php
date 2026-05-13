@@ -3,14 +3,10 @@ declare( strict_types=1 );
 
 namespace WPDesk\Init\Module;
 
-use Psr\Container\ContainerInterface;
-use WPDesk\Init\Binding\Loader\ArrayDefinitions;
-use WPDesk\Init\Binding\Loader\BindingDefinitions;
-use WPDesk\Init\Binding\Loader\EmptyDefinitions;
 use WPDesk\Init\Bootstrap\BootstrapContext;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 
-final class LegacyBuilderModule implements Module {
+final class LegacyBuilderModule extends AbstractModule {
 
 	public function build( ContainerBuilder $builder, BootstrapContext $context ): void {
 		if ( ! class_exists( \WPDesk_Plugin_Info::class ) ) {
@@ -40,21 +36,5 @@ final class LegacyBuilderModule implements Module {
 				\WPDesk_Plugin_Info::class => $plugin_info,
 			]
 		);
-	}
-
-	public function bindings( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new ArrayDefinitions( [] );
-	}
-
-	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new EmptyDefinitions();
-	}
-
-	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		return new EmptyDefinitions();
-	}
-
-	public function gates( ContainerInterface $container, BootstrapContext $context ): array {
-		return [];
 	}
 }

@@ -30,7 +30,9 @@ Use declarative config for services, hooks, modules, and lifecycle handlers:
 ```php
 <?php
 
-use WPDesk\Init\Module\RequirementsModule;
+use WPDesk\Init\PluginFree\FreePluginModule;
+use WPDesk\Init\PluginFree\RequirementsModule;
+use WPDesk\Init\PluginFree\WPDeskTrackerModule;
 
 return [
 	'services' => __DIR__ . '/config/services.php',
@@ -38,6 +40,7 @@ return [
 	'cache_path' => 'generated',
 	'environment' => 'production',
 	'modules' => [
+		FreePluginModule::class => null,
 		RequirementsModule::class => [
 			'requirements' => [
 				'plugins' => [
@@ -48,16 +51,22 @@ return [
 				],
 			],
 		],
+		WPDeskTrackerModule::class => [
+			'shops' => [
+				'default' => 'https://wpdesk.net',
+				'pl_PL' => 'https://www.wpdesk.pl',
+			],
+		],
 	],
 	'gates' => [
 		\Vendor\Plugin\Infrastructure\CustomCompatibilityGate::class,
 	],
-	'activation' => [
+	'activate' => [
 		static function ( \Vendor\Plugin\Migrations $migrations ): void {
 			$migrations->migrate();
 		},
 	],
-	'deactivation' => [
+	'deactivate' => [
 		\Vendor\Plugin\Hooks\CleanupOnDeactivate::class,
 	],
 ];
@@ -69,7 +78,7 @@ Main concepts:
 - Callable bindings are a narrow convenience for one-shot boot or lifecycle work.
 - Modules are explicit opt-in bootstrap features with module-owned config.
 - Boot gates stop the plugin before normal hook registration when viability checks fail.
-- Activation and deactivation are handled explicitly through `activation` and `deactivation` config.
+- Activation and deactivation are handled explicitly through `activate` and `deactivate` config.
 
 See [configuration](docs/configuration.md) for the full config shape and [legacy migration](docs/legacy.md) for `wp-builder` migration.
 

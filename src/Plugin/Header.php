@@ -20,6 +20,7 @@ final class Header implements \ArrayAccess {
 		return $this->has( $offset );
 	}
 
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		if ( ! is_string( $offset ) ) {
 			throw new \InvalidArgumentException( 'Header key must be a string' );
@@ -36,6 +37,7 @@ final class Header implements \ArrayAccess {
 		throw new \BadMethodCallException( 'Header cannot be modified' );
 	}
 
+	/** @return mixed */
 	public function get( string $key ) {
 		return $this->header_data[ $key ];
 	}

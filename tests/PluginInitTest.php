@@ -158,10 +158,10 @@ PHP
 
 		Init::setup(
 			[
-				'activation' => static function () use ( &$activation_calls ): void {
+				'activate' => static function () use ( &$activation_calls ): void {
 					$activation_calls++;
 				},
-				'deactivation' => static function () use ( &$deactivation_calls ): void {
+				'deactivate' => static function () use ( &$deactivation_calls ): void {
 					$deactivation_calls++;
 				},
 			]

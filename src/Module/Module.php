@@ -15,9 +15,9 @@ interface Module {
 
 	public function bindings( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions;
 
-	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions;
+	public function activate( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions;
 
-	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions;
+	public function deactivate( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions;
 
 	/**
 	 * @return BootGate[]

@@ -9,19 +9,22 @@ use Psr\Container\ContainerInterface;
 use WPDesk\Init\Binding\Binder\CallableBinder;
 use WPDesk\Init\Binding\Binder\CompositeBinder;
 use WPDesk\Init\Binding\Binder\HookableBinder;
-use WPDesk\Init\Binding\Definition;
 use WPDesk\Init\Binding\Loader\ClusteredLoader;
 use WPDesk\Init\Binding\Loader\CompositeBindingLoader;
 use WPDesk\Init\Binding\Loader\OrderedBindingLoader;
 use WPDesk\Init\Bootstrap\BootGate;
 use WPDesk\Init\Bootstrap\BootstrapContext;
+use WPDesk\Init\Bootstrap\LifecycleHookRegistrar;
 use WPDesk\Init\Configuration\Configuration;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\HookDriver\CompositeDriver;
 use WPDesk\Init\HookDriver\GenericDriver;
 use WPDesk\Init\HookDriver\HookDriver;
 use WPDesk\Init\HookDriver\LegacyDriver;
+use WPDesk\Init\Module\BuiltinModule;
+use WPDesk\Init\Module\ConfigModule;
 use WPDesk\Init\Module\LegacyBuilderModule;
+use WPDesk\Init\Module\Module;
 use WPDesk\Init\Module\ModuleCollection;
 use WPDesk\Init\Plugin\DefaultHeaderParser;
 use WPDesk\Init\Plugin\Header;
@@ -32,7 +35,7 @@ use WPDesk\Init\Util\PhpFileDumper;
 use WPDesk\Init\Util\PhpFileLoader;
 
 /**
- * @internal Kernel is bootstrap implementation detail. Use Init as the public entrypoint.
+ * @internal Kernel is a bootstrap implementation detail. Use Init as the public entrypoint.
  */
 final class Kernel {
 
@@ -51,18 +54,19 @@ final class Kernel {
 
 	public function __construct(
 		string $filename,
-		Configuration $config,
-		ModuleCollection $modules
+		Configuration $config
 	) {
 		$this->filename = $filename;
 		$this->config   = $config;
-		$this->modules  = $modules;
 		$this->loader   = new PhpFileLoader();
 		$this->parser   = new DefaultHeaderParser();
 		$this->dumper   = new PhpFileDumper();
 	}
 
 	public function boot(): void {
+		$module_config = $this->normalized_module_config();
+		$this->modules = $this->resolve_modules( $module_config );
+
 		$cache_path = $this->get_cache_path( 'plugin.php' );
 		try {
 			$plugin_data = $this->loader->load( $cache_path );
@@ -79,14 +83,14 @@ final class Kernel {
 		}
 
 		$plugin  = new Plugin( $this->filename, new Header( $plugin_data ) );
-		$context = $this->create_context( $plugin );
+		$context = $this->create_context( $plugin, $module_config );
 
 		$container = $this->initialize_container( $context );
 		$container->set( Plugin::class, $plugin );
 		$container->set( Configuration::class, $this->config );
 		$container->set( BootstrapContext::class, $context );
 
-		$this->register_lifecycle_hooks( $container, $context );
+		( new LifecycleHookRegistrar( $this->filename, $this->modules ) )->register( $container, $context );
 
 		if ( ! $this->run_gates( $container, $context ) ) {
 			return;
@@ -102,9 +106,9 @@ final class Kernel {
 	}
 
 	/**
-	 * Container name in scheme: `<slug>_<version>_container`.
+	 * Container name in a scheme: `<slug>_<version>_container`.
 	 *
-	 * Container is compiled in client environment, so in order to allow graceful upgrade, include version name to the container. Compiled container class is also autoloaded, so it is necessary that name is unique enough to avoid clash with other plugins.
+	 * Container is compiled in the client environment, so to allow graceful upgrade, include the version name to the container. Compiled container class is also autoloaded, so it is necessary that name is unique enough to avoid clash with other plugins.
 	 */
 	private function get_container_name( Plugin $plugin ): string {
 		return preg_replace( '/[^\w_]/', '_', implode( '_', [ $plugin->get_slug(), $plugin->get_version(), 'container' ] ) );
@@ -169,14 +173,42 @@ final class Kernel {
 		return $driver;
 	}
 
-	private function create_context( Plugin $plugin ): BootstrapContext {
+	/**
+	 * @param array<string, array<string, mixed>> $module_config
+	 */
+	private function create_context( Plugin $plugin, array $module_config ): BootstrapContext {
 		return new BootstrapContext(
 			$plugin,
 			$this->config,
-			$this->normalized_module_config(),
+			$module_config,
 			$this->resolve_environment( $plugin ),
 			$this->resolve_debug( $plugin )
 		);
+	}
+
+	/**
+	 * @param array<string, array<string, mixed>> $module_config
+	 */
+	private function resolve_modules( array $module_config ): ModuleCollection {
+		$modules = new ModuleCollection(
+			new BuiltinModule(),
+			new ConfigModule()
+		);
+
+		foreach ( array_keys( $module_config ) as $module_class ) {
+			if ( $modules->has( $module_class ) ) {
+				continue;
+			}
+
+			$module = new $module_class();
+			if ( ! $module instanceof Module ) {
+				throw new \LogicException( sprintf( 'Configured module "%s" must implement %s.', $module_class, Module::class ) );
+			}
+
+			$modules->add( $module );
+		}
+
+		return $modules;
 	}
 
 	/**
@@ -263,65 +295,4 @@ final class Kernel {
 		return $gates;
 	}
 
-	private function register_lifecycle_hooks( ContainerInterface $container, BootstrapContext $context ): void {
-		$this->register_activation_hook( $container, $context );
-		$this->register_deactivation_hook( $container, $context );
-	}
-
-	private function register_activation_hook( ContainerInterface $container, BootstrapContext $context ): void {
-		$definitions = $this->collect_lifecycle_definitions( $container, $context, 'activation' );
-		if ( $definitions === [] ) {
-			return;
-		}
-
-		$binder = $this->lifecycle_binder( $container );
-		register_activation_hook(
-			$this->filename,
-			static function () use ( $binder, $definitions ): void {
-				foreach ( $definitions as $definition ) {
-					$binder->bind( $definition );
-				}
-			}
-		);
-	}
-
-	private function register_deactivation_hook( ContainerInterface $container, BootstrapContext $context ): void {
-		$definitions = $this->collect_lifecycle_definitions( $container, $context, 'deactivation' );
-		if ( $definitions === [] ) {
-			return;
-		}
-
-		$binder = $this->lifecycle_binder( $container );
-		register_deactivation_hook(
-			$this->filename,
-			static function () use ( $binder, $definitions ): void {
-				foreach ( $definitions as $definition ) {
-					$binder->bind( $definition );
-				}
-			}
-		);
-	}
-
-	/**
-	 * @return Definition[]
-	 */
-	private function collect_lifecycle_definitions( ContainerInterface $container, BootstrapContext $context, string $method ): array {
-		$definitions = [];
-
-		foreach ( $this->modules as $module ) {
-			$loader = $module->{$method}( $container, $context );
-			foreach ( $loader->load() as $definition ) {
-				$definitions[] = $definition;
-			}
-		}
-
-		return $definitions;
-	}
-
-	private function lifecycle_binder( ContainerInterface $container ): CompositeBinder {
-		return new CompositeBinder(
-			new HookableBinder( $container ),
-			new CallableBinder( $container )
-		);
-	}
 }

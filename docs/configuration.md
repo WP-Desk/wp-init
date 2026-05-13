@@ -6,7 +6,9 @@
 <?php
 
 use WPDesk\Init\Module\LegacyBuilderModule;
-use WPDesk\Init\Module\RequirementsModule;
+use WPDesk\Init\PluginFree\FreePluginModule;
+use WPDesk\Init\PluginFree\RequirementsModule;
+use WPDesk\Init\PluginFree\WPDeskTrackerModule;
 
 return [
 	'services' => __DIR__ . '/config/services.php',
@@ -15,6 +17,7 @@ return [
 	'environment' => 'production',
 	'debug' => false,
 	'modules' => [
+		FreePluginModule::class => null,
 		RequirementsModule::class => [
 			'requirements' => [
 				'plugins' => [
@@ -25,6 +28,12 @@ return [
 				],
 			],
 		],
+		WPDeskTrackerModule::class => [
+			'shops' => [
+				'default' => 'https://wpdesk.net',
+				'pl_PL' => 'https://www.wpdesk.pl',
+			],
+		],
 		LegacyBuilderModule::class => [
 			'plugin_class_name' => \Vendor\Plugin\LegacyPlugin::class,
 		],
@@ -32,12 +41,12 @@ return [
 	'gates' => [
 		\Vendor\Plugin\Infrastructure\CustomCompatibilityGate::class,
 	],
-	'activation' => [
+	'activate' => [
 		static function ( \Vendor\Plugin\Migrations $migrations ): void {
 			$migrations->migrate();
 		},
 	],
-	'deactivation' => [
+	'deactivate' => [
 		\Vendor\Plugin\Hooks\CleanupOnDeactivate::class,
 	],
 ];
@@ -89,16 +98,53 @@ Example:
 
 ```php
 'modules' => [
-	\WPDesk\Init\Module\RequirementsModule::class => [
+	\WPDesk\Init\PluginFree\RequirementsModule::class => [
 		'requirements' => [
 			'php' => '>=8.1',
 		],
 	],
-	\WPDesk\Init\Module\WPDeskTrackerModule::class => [],
+	\WPDesk\Init\PluginFree\WPDeskTrackerModule::class => [
+		'shops' => [
+			'default' => 'https://wpdesk.net',
+		],
+	],
 ]
 ```
 
 Module-specific config lives under that module entry. Root config is not used as a fallback for module options.
+
+WP Desk plugin presets are marker modules. They do not introduce another config shape; concrete modules are still configured by hand under their own class names.
+
+```php
+use WPDesk\Init\PluginFree\FreePluginModule;
+use WPDesk\Init\PluginFree\RequirementsModule;
+use WPDesk\Init\PluginFree\WPDeskTrackerModule;
+use WPDesk\Init\PluginPaid\PaidPluginModule;
+use WPDesk\Init\PluginPaid\WPDeskLicenseModule;
+
+'modules' => [
+	PaidPluginModule::class => null,
+	FreePluginModule::class => null,
+	RequirementsModule::class => [
+		'requirements' => [
+			'php' => '>=8.1',
+		],
+	],
+	WPDeskTrackerModule::class => [
+		'shops' => [
+			'default' => 'https://wpdesk.net',
+			'pl_PL' => 'https://www.wpdesk.pl',
+		],
+	],
+	WPDeskLicenseModule::class => [
+		'product_id' => 'my-product',
+		'shops' => [
+			'default' => 'https://wpdesk.net',
+			'pl_PL' => 'https://www.wpdesk.pl',
+		],
+	],
+]
+```
 
 ## `gates`
 
@@ -112,9 +158,9 @@ Rules:
 
 Use gates when the whole plugin must remain active but not boot, for example because a required dependency version is not compatible. Gates may render notices in `on_failure()`.
 
-Requirements checks stay ergonomic through `RequirementsModule`; that module provides its own gate internally.
+Requirements checks stay ergonomic through `WPDesk\Init\PluginFree\RequirementsModule`; that module provides its own gate internally.
 
-## `activation`
+## `activate`
 
 Explicit activation handlers. Accepts a single callable/class definition or an array of definitions.
 
@@ -125,9 +171,9 @@ Supported entries are the same strict binding shapes used for normal bootstrap b
 
 Use this for work such as database migrations or setup that should happen on plugin activation.
 
-## `deactivation`
+## `deactivate`
 
-Explicit deactivation handlers. Accepts the same shapes as `activation`.
+Explicit deactivation handlers. Accepts the same shapes as `activate`.
 
 Use this for cleanup work that must happen on plugin deactivation.
 
@@ -165,7 +211,7 @@ If any gate fails:
 
 - the gate handles its own failure behavior
 - normal plugin boot stops
-- activation and deactivation callbacks remain registered
+- `activate` and `deactivate` callbacks remain registered
 
 ## Legacy Builder Module
 

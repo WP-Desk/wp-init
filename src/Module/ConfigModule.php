@@ -13,7 +13,7 @@ use WPDesk\Init\Bootstrap\BootstrapContext;
 use WPDesk\Init\DependencyInjection\ContainerBuilder;
 use WPDesk\Init\Util\Path;
 
-final class ConfigModule implements Module {
+final class ConfigModule extends AbstractModule {
 
 	public function build( ContainerBuilder $builder, BootstrapContext $context ): void {
 		$services = array_map(
@@ -37,22 +37,22 @@ final class ConfigModule implements Module {
 		);
 	}
 
-	public function activation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		$activation = $context->config()->get( 'activation' );
-		if ( $activation === null ) {
+	public function activate( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		$activate = $context->config()->get( 'activate' );
+		if ( $activate === null ) {
 			return new EmptyDefinitions();
 		}
 
-		return new ArrayDefinitions( is_array( $activation ) ? $activation : [ $activation ] );
+		return new ArrayDefinitions( is_array( $activate ) ? $activate : [ $activate ] );
 	}
 
-	public function deactivation( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
-		$deactivation = $context->config()->get( 'deactivation' );
-		if ( $deactivation === null ) {
+	public function deactivate( ContainerInterface $container, BootstrapContext $context ): BindingDefinitions {
+		$deactivate = $context->config()->get( 'deactivate' );
+		if ( $deactivate === null ) {
 			return new EmptyDefinitions();
 		}
 
-		return new ArrayDefinitions( is_array( $deactivation ) ? $deactivation : [ $deactivation ] );
+		return new ArrayDefinitions( is_array( $deactivate ) ? $deactivate : [ $deactivate ] );
 	}
 
 	public function gates( ContainerInterface $container, BootstrapContext $context ): array {

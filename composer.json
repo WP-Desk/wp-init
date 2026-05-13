@@ -28,10 +28,7 @@
   "autoload-dev": {
     "psr-4": {
       "WPDesk\\Init\\Tests\\": "tests"
-    },
-    "classmap": [
-      "vendor/wpdesk/wp-basic-requirements"
-    ]
+    }
   },
   "require": {
     "php": ">=7.4 | ^8",
@@ -43,19 +40,12 @@
     "phpunit/phpunit": "^8 || ^9",
     "symfony/filesystem": "^5.4 || ^6.2",
     "wpdesk/phpstan-rules": "^1.1",
-    "wpdesk/wp-basic-requirements": "^3",
-    "wpdesk/wp-wpdesk-license": "^4",
     "wpdesk/wp-builder": "^2.0",
     "wpdesk/wp-code-sniffer": "^1.3"
   },
   "suggest": {
-    "wpdesk/wp-basic-requirements": "Enables your plugin to check an environment requirement before instantiation, e.g. PHP version or active plugins",
-    "wpdesk/wp-logs": "PSR-3 compatible logger with WooCommerce handler."
-  },
-  "conflict": {
-    "wpdesk/wp-basic-requirements": "<3 >=4",
-    "wpdesk/wp-wpdesk-license": "<4 >=5",
-    "wpdesk/wp-logs": "<1.13 >=2"
+    "wpdesk/wp-init-plugin-free": "Preset for free WP Desk plugins.",
+    "wpdesk/wp-init-plugin-paid": "Preset for paid WP Desk plugins."
   },
   "scripts": {
     "test": "vendor/bin/phpunit --bootstrap tests/bootstrap.php ./tests"
@@ -67,6 +57,26 @@
     }
   },
   "repositories": {
+    "wp-init-plugin-free": {
+      "type": "path",
+      "url": "packages/wp-init-plugin-free",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "wpdesk/wp-init-plugin-free": "1.0.0"
+        }
+      }
+    },
+    "wp-init-plugin-paid": {
+      "type": "path",
+      "url": "packages/wp-init-plugin-paid",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "wpdesk/wp-init-plugin-paid": "1.0.0"
+        }
+      }
+    },
     "wpdesk": {
       "type": "composer",
       "url": "https://gitlab.wpdesk.dev/api/v4/group/wpdesk/-/packages/composer/"
